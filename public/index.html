@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Personal Website</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-js="body">
+    <header>
+      <h1>MY SPACE</h1>
+    </header>
+    <main>
+      <div class="formWrapper">
+        <form action="script.cgi" method="post" data-js="form">
+          <p>
+            Just like words, colors have the ability to convey emotions, moods,
+            and energy levels. Whether you're feeling joyful, calm, energetic,
+            or even a little mysterious, there's a color that can help you
+            express it.
+          </p>
+          <label for="color" class="colorLabel">Farbe/Gefühl einstellen</label>
+          <input
+            type="text"
+            id="color"
+            name="color"
+            placeholder="gültigen Farbcode eingeben"
+            minlength="3"
+            maxlength="20"
+            required
+            data-js="color"
+          />
+          <button class="save-button" type="submit" data-js="button">
+            Speichern
+          </button>
+          <p data-js="mood"></p>
+        </form>
+      </div>
+    </main>
+    <footer data-js="footer"></footer>
+    <script src="index.js"></script>
+  </body>
+</html>

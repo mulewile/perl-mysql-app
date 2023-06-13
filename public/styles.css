@@ -1,0 +1,88 @@
+header {
+  background-color: bisque;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  text-align: center;
+  font-family: "Arial";
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  }
+
+.body--background-color{
+    background-color: seashell;
+}
+
+form {
+  padding: 3rem;
+}
+
+.colorLabel{
+  font-family: "lato";
+}
+
+p {
+  font-weight: bold;
+  font-family: "lato";
+  font-size: 1.2rem;
+}
+
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(245, 245, 245);
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(103, 100, 100, 0.2);
+}
+
+@media (max-width: 768px) {
+  .formWrapper {
+    width: 90%;
+    max-width: 300px;
+    padding: 1rem;
+  }
+}
+
+.formWrapper:hover {
+  cursor: pointer;
+}
+
+button {
+  background-color: gainsboro;
+  border: none;
+  border-radius: 3px;
+  font-size: 1rem;
+  padding: 0.3rem;
+  cursor: pointer;
+}
+
+
+button:hover{
+    background-color: salmon;
+    cursor: pointer;
+}
+
+input[type="text"]:focus{
+    border-radius: 3px;
+    padding: 0.3rem;
+    border: none;
+    outline: 2px solid salmon;
+}
+
+footer{
+    background-color: peachpuff;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+}
