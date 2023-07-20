@@ -31,10 +31,24 @@
             required
             data-js="color"
           />
+          <label for="colorMeaning" class="colorMeaningLabel"
+            >Farbe Bedeutung</label
+          >
+          <input
+            type="text"
+            id="colorMeaning"
+            name="colorMeaning"
+            placeholder="farbcode Bedeutung eingeben"
+            minlength="3"
+            maxlength="20"
+            required
+            data-js="colorMeaning"
+          />
           <button class="save-button" type="submit" data-js="button">
             Speichern
           </button>
           <p data-js="mood"></p>
+          <p data-js="meaning"></p>
         </form>
       </div>
     </main>

@@ -12,9 +12,9 @@ print "Content-Type: text/html\n\n";
 my $cgi = CGI->new();
 
 # MySQL database configuration
-my $dsn      = "DBI:mysql:";
-my $username = "";
-my $password = '';
+my $dsn      = "DBI:mysql:mydb";
+my $username = "root";
+my $password = 'root100';
 
 # withou RasieError off:
  my $dbh  = DBI->connect($dsn,$username,$password) or 
@@ -23,24 +23,26 @@ my $password = '';
 # print "Connected to the myDB database.";
 
 # Get form data
-my $color_name = $cgi->param('color');
-
-if ($color_name) {
+my $backgroundcolorname = $cgi->param('color');
+my $meaning = $cgi->param('colorMeaning');
+if ($backgroundcolorname && $meaning) {
     # Insert form data into the MySQL database
-    my $insert_query = "INSERT INTO backgroundcolor (color) VALUES (?)";
+    my $insert_query = "INSERT INTO backgroundcolor (color, colormeaning) VALUES (?, ?)";
     my $insert_stmt = $dbh->prepare($insert_query);
-    $insert_stmt->execute($color_name);
+    $insert_stmt->execute($backgroundcolorname, $meaning);
     
     # Output success message
     print "Form data stored successfully.";
 }
 
+
+
 # Retrieve background color from MySQL database
-my $select_query = "SELECT color FROM backgroundcolor ORDER BY id DESC LIMIT 1";
+my $select_query = "SELECT color, colormeaning FROM backgroundcolor ORDER BY id DESC LIMIT 1";
 my $select_stmt = $dbh->prepare($select_query);
 $select_stmt->execute();
 
-my ($background_color) = $select_stmt->fetchrow_array();
+my ($background_color, $meaning) = $select_stmt->fetchrow_array();
 
 
 
@@ -48,4 +50,5 @@ my ($background_color) = $select_stmt->fetchrow_array();
 $dbh->disconnect();
 
 # Output background color
-print $background_color;
+print $background_color, "\n";
+print $meaning;
