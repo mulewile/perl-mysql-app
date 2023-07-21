@@ -1,9 +1,14 @@
-const bodyElement = document.querySelector('[data-js="body"]');
-const formElement = document.querySelector('[data-js="form"]');
-const colorInput = document.querySelector('[data-js="color"]');
-const moodElement = document.querySelector('[data-js="mood"]');
-const footerElement = document.querySelector('[data-js="footer"]');
-const meaningElement = document.querySelector('[data-js="meaning"]');
+function getElement(selector) {
+  return document.querySelector(`[data-js="${selector}"]`);
+}
+
+const bodyElement = getElement("body");
+const formElement = getElement("form");
+const colorInput = getElement("color");
+const moodElement = getElement("mood");
+const footerElement = getElement("footer");
+const meaningElement = getElement("meaning");
+
 function handleColorChange() {
   const colorName = colorInput.value;
   bodyElement.style.backgroundColor = colorName;
@@ -14,12 +19,10 @@ async function handleColorSubmit(event) {
 
   const formData = new FormData(event.target);
   const colorObject = Object.fromEntries(formData);
-  bodyElement.style.backgroundColor = colorObject.color;
-
-  const upperCaseColorName = colorObject.color.toUpperCase();
-  const moodText = `
-  Heute fühle ich mich "${upperCaseColorName}!".`;
-
+  const { color } = colorObject;
+  const upperCaseColorName = color.toUpperCase();
+  const moodText = `Heute fühle ich mich "${upperCaseColorName}!".`;
+  bodyElement.style.backgroundColor = color;
   moodElement.textContent = moodText;
 
   const response = await fetch("script.cgi", {
@@ -31,33 +34,38 @@ async function handleColorSubmit(event) {
   });
 
   if (response.ok) {
-    logger.info("Color saved successfully", { status: response.status });
+    console.log("Color saved successfully", { status: response.status });
   } else {
-    logger.error("Error saving color", { status: response.status });
+    console.log("Error saving color", { status: response.status });
   }
 }
 
 async function handleOnPageLoad() {
-  const currentDate = new Date();
-  const year = currentDate.getFullYear();
-  footerElement.textContent = `Bill ${year}`;
-  const response = await fetch("script.cgi");
+  const year = new Date().getFullYear();
 
-  if (!response.ok) {
-    console.log("Error reading color from the server");
-    return;
-  }
+  //const currentDate = new Date();
+  //const year = currentDate.getFullYear();
 
-  const colorData = await response.text();
+  footerElement.textContent = `@Bill ${year}`;
+  try {
+    const response = await fetch("script.cgi");
 
-  if (colorData) {
-    const [color, meaning] = colorData.split("\n");
-    bodyElement.style.backgroundColor = color;
-    moodElement.textContent = `My color is ${color}`;
-    console.log(colorData);
-    meaningElement.textContent = `The colour ${color} is associated with ${meaning}`;
-  } else {
-    console.log("Color not found in the response");
+    if (!response.ok) {
+      console.log("Error reading color from the server");
+    }
+
+    const colorData = await response.json();
+
+    if (colorData && colorData.name && colorData.meaning) {
+      const { name, meaning } = colorData;
+      bodyElement.style.backgroundColor = name;
+      moodElement.textContent = `My color is ${name}`;
+      meaningElement.textContent = `${name} color associations: ${meaning}.`;
+    } else {
+      console.log(`Invalid or missing color data in the response`);
+    }
+  } catch (error) {
+    console.log(`Error: ${error.message}`);
   }
 }
 

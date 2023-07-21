@@ -20,7 +20,8 @@ form {
   padding: 3rem;
 }
 
-.colorLabel{
+.colorLabel, 
+.colorMeaningLabel{
   font-family: "lato";
 }
 
@@ -67,6 +68,16 @@ button {
 button:hover{
     background-color: salmon;
     cursor: pointer;
+}
+
+.inputSection {
+  display: block;
+}
+
+.inputSection input,
+.inputSection label {
+  display: block;
+  margin-bottom: 5px;
 }
 
 input[type="text"]:focus{

@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use JSON;
 use CGI;
 use DBI;
 
@@ -23,13 +24,13 @@ my $password = 'root100';
 # print "Connected to the myDB database.";
 
 # Get form data
-my $backgroundcolorname = $cgi->param('color');
-my $meaning = $cgi->param('colorMeaning');
-if ($backgroundcolorname && $meaning) {
+my $color_name = $cgi->param('color');
+my $color_meaning = $cgi->param('colorMeaning');
+if ($color_name && $color_meaning) {
     # Insert form data into the MySQL database
     my $insert_query = "INSERT INTO backgroundcolor (color, colormeaning) VALUES (?, ?)";
     my $insert_stmt = $dbh->prepare($insert_query);
-    $insert_stmt->execute($backgroundcolorname, $meaning);
+    $insert_stmt->execute($color_name, $color_meaning);
     
     # Output success message
     print "Form data stored successfully.";
@@ -42,13 +43,15 @@ my $select_query = "SELECT color, colormeaning FROM backgroundcolor ORDER BY id 
 my $select_stmt = $dbh->prepare($select_query);
 $select_stmt->execute();
 
-my ($background_color, $meaning) = $select_stmt->fetchrow_array();
+my ($color_name, $color_meaning) = $select_stmt->fetchrow_array();
 
+
+my %color_data = ('name' => "$color_name", 'meaning' => "$color_meaning");
+my $json = encode_json \%color_data;
 
 
 # Close the database connection
 $dbh->disconnect();
 
 # Output background color
-print $background_color, "\n";
-print $meaning;
+print "$json\n";

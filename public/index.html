@@ -21,29 +21,32 @@
             express it.
           </p>
           <label for="color" class="colorLabel">Farbe/Gefühl einstellen</label>
-          <input
-            type="text"
-            id="color"
-            name="color"
-            placeholder="gültigen Farbcode eingeben"
-            minlength="3"
-            maxlength="20"
-            required
-            data-js="color"
-          />
-          <label for="colorMeaning" class="colorMeaningLabel"
-            >Farbe Bedeutung</label
-          >
-          <input
-            type="text"
-            id="colorMeaning"
-            name="colorMeaning"
-            placeholder="farbcode Bedeutung eingeben"
-            minlength="3"
-            maxlength="20"
-            required
-            data-js="colorMeaning"
-          />
+          <div class="inputSection">
+            <input
+              type="text"
+              id="color"
+              name="color"
+              placeholder="gültigen Farbcode eingeben"
+              minlength="3"
+              maxlength="20"
+              required
+              data-js="color"
+            />
+            <label for="colorMeaning" class="colorMeaningLabel"
+              >Farbe Bedeutung</label
+            >
+            <input
+              type="text"
+              id="colorMeaning"
+              name="colorMeaning"
+              placeholder="farbcode Bedeutung eingeben"
+              minlength="3"
+              maxlength="20"
+              required
+              data-js="colorMeaning"
+            />
+          </div>
+
           <button class="save-button" type="submit" data-js="button">
             Speichern
           </button>
