@@ -13,13 +13,18 @@
     </header>
     <main>
       <div class="formWrapper">
-        <form action="script.cgi" method="post" data-js="form">
+        <section class="colorDetails">
           <p>
             Just like words, colors have the ability to convey emotions, moods,
             and energy levels. Whether you're feeling joyful, calm, energetic,
             or even a little mysterious, there's a color that can help you
             express it.
           </p>
+          <p data-js="mood"></p>
+          <p data-js="meaning"></p>
+          <p data-js="memories"></p>
+        </section>
+        <form action="script.cgi" method="post" data-js="form">
           <label for="color" class="colorLabel">Farbe/Gefühl einstellen</label>
           <div class="inputSection">
             <input
@@ -45,13 +50,23 @@
               required
               data-js="colorMeaning"
             />
+            <label for="colorMemories" class="colorMemoriesLabel"
+              >Farbe Erinnerung</label
+            >
+            <input
+              type="text"
+              id="colorMemories"
+              name="colorMemories"
+              placeholder="farbcode Erinnerung eingeben"
+              minlength="3"
+              maxlength="20"
+              required
+              data-js="colorMemories"
+            />
           </div>
-
           <button class="save-button" type="submit" data-js="button">
             Speichern
           </button>
-          <p data-js="mood"></p>
-          <p data-js="meaning"></p>
         </form>
       </div>
     </main>

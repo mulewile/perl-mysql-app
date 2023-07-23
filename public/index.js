@@ -8,7 +8,7 @@ const colorInput = getElement("color");
 const moodElement = getElement("mood");
 const footerElement = getElement("footer");
 const meaningElement = getElement("meaning");
-
+const memoriesElement = getElement("memories");
 function handleColorChange() {
   const colorName = colorInput.value;
   bodyElement.style.backgroundColor = colorName;
@@ -56,11 +56,17 @@ async function handleOnPageLoad() {
 
     const colorData = await response.json();
 
-    if (colorData && colorData.name && colorData.meaning) {
-      const { name, meaning } = colorData;
+    if (
+      colorData &&
+      colorData.name &&
+      colorData.meaning &&
+      colorData.memories
+    ) {
+      const { name, meaning, memories } = colorData;
       bodyElement.style.backgroundColor = name;
       moodElement.textContent = `My color is ${name}`;
       meaningElement.textContent = `${name} color associations: ${meaning}.`;
+      memoriesElement.textContent = `The ${name} color brings me the memories like ${memories}.`;
     } else {
       console.log(`Invalid or missing color data in the response`);
     }
