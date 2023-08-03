@@ -7,11 +7,11 @@
     <title>My Personal Website</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body data-js="body">
+  <body data-js="body" class="body--background-color"></body>>
     <header>
       <h1>MY SPACE</h1>
     </header>
-    <main>
+    <main class="mainWrapper">
       <div class="formWrapper">
         <section class="colorDetails">
           <p>
@@ -24,7 +24,7 @@
           <p data-js="meaning"></p>
           <p data-js="memories"></p>
         </section>
-        <form action="script.cgi" method="post" data-js="form">
+        <form class="form" action="script.cgi" method="post" data-js="form">
           <label for="color" class="colorLabel">Farbe/Gefühl einstellen</label>
           <div class="inputSection">
             <input
@@ -69,8 +69,19 @@
           </button>
         </form>
       </div>
+      <div class="colorList">
+        <table>
+          <thead>
+            <tr>
+              <th>Farbe</th>
+              <th>Anzahl</th>
+            </tr>
+          </thead>
+          <tbody data-js="colorList"></tbody>
+        </table>
+      </div>
     </main>
-    <footer data-js="footer"></footer>
+    <footer type="module" data-js="footer"></footer>
     <script src="index.js"></script>
   </body>
 </html>
