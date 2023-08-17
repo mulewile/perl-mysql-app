@@ -6,6 +6,7 @@
     "msql": "^1.0.3",
     "mysql": "github:mysqljs/mysql",
     "mysql2": "^3.3.3",
+    "nearest-color": "^0.4.4",
     "winston": "^3.10.0"
   },
   "name": "perl-msql-aufgabe",

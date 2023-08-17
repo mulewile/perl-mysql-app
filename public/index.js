@@ -17,6 +17,20 @@ function handleColorChange() {
   bodyElement.style.backgroundColor = colorName;
 }
 
+let colorAPI;
+
+async function fetchColorData() {
+  try {
+    const response = await fetch("./colorListe");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    colorAPI = await response.json();
+  } catch (error) {
+    console.error("Error fetching color data:", error);
+  }
+}
+
 function setColorContrast(bgColor, lightColor, darkColor) {
   const color = bgColor.charAt(0) === "#" ? bgColor.substring(1, 7) : bgColor;
   const r = parseInt(color.substring(0, 2), 16); // hexToR
@@ -25,11 +39,15 @@ function setColorContrast(bgColor, lightColor, darkColor) {
   return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? darkColor : lightColor;
 }
 
+function colorNameToHex(colour) {
+  const lowerCaseColour = colour.toLowerCase();
+  return colour.startsWith("#") ? colour : colorAPI[lowerCaseColour];
+}
+
 function setLastTenTable(colorData) {
   const color_object = colorData.color_object;
   const { color_name, color_meaning, color_memories } = color_object[0];
 
-  console.log("Data Check===", color_object);
   bodyElement.style.backgroundColor = color_name;
   moodElement.textContent = `My color is ${color_name}`;
   meaningElement.textContent = `${color_name} color associations: ${color_meaning}`;
@@ -40,21 +58,21 @@ function setLastTenTable(colorData) {
     .forEach((e) => e.remove());
 
   for (const color of color_object) {
-    const adjustedColor = setColorContrast(
-      color.color_name,
-      "#FFFFFF",
-      "#000000"
-    );
+    const hexColor = colorNameToHex(color.color_name);
+    const adjustedColor = setColorContrast(hexColor, "#FFFFFF", "#000000");
     const row = document.createElement("tr");
+
     const colorCell = document.createElement("td");
     colorCell.style.backgroundColor = color.color_name;
     colorCell.textContent = color.color_name;
     colorCell.style.color = adjustedColor;
     row.append(colorCell);
+
     colorCell.addEventListener("click", (event) => {
       const newBackgroundColor = event.target.innerHTML;
       bodyElement.style.background = newBackgroundColor;
     });
+
     const countCell = document.createElement("td");
     countCell.textContent = color.color_count;
     row.append(countCell);
@@ -87,6 +105,13 @@ function handleOnPageLoad() {
   const year = new Date().getFullYear();
   footerElement.textContent = `@Bill ${year}`;
   getLastTenColors();
+  fetchColorData();
+}
+
+function validCssColor(colorString) {
+  const string = new Option().style;
+  string.color = colorString.toLowerCase();
+  return string.color === colorString.toLowerCase();
 }
 
 async function handleColorSubmit(event) {
@@ -95,21 +120,25 @@ async function handleColorSubmit(event) {
   const colorObject = Object.fromEntries(formData);
   const { color } = colorObject;
   bodyElement.style.backgroundColor = color;
+  const isValid = validCssColor(color);
 
-  const response = await fetch("script.cgi", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams(formData),
-  });
+  if (isValid) {
+    const response = await fetch("script.cgi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(formData),
+    });
 
-  if (response.ok) {
-    getLastTenColors();
-
-    console.log("Color saved successfully", { status: response.status });
+    if (response.ok) {
+      getLastTenColors();
+      console.log("Color saved successfully", { status: response.status });
+    } else {
+      console.log("Error saving color", { status: response.status });
+    }
   } else {
-    console.log("Error saving color", { status: response.status });
+    alert("Wrong color entered");
   }
 }
 

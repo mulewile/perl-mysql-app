@@ -1,5 +1,7 @@
 #!C:/Strawberry/perl/bin/perl.exe
 
+# Your database code here, using $dsn, $username, and $password
+
 use strict;
 use warnings;
 use JSON;
@@ -13,10 +15,11 @@ print "Content-Type: text/html\n\n";
 # Create CGI object
 my $cgi = CGI->new();
 
-# MySQL database configuration
-my $dsn      = "DBI:mysql:mydb";
+# Now, access the environment variables using %ENV
+my $dsn      = 'dbi:mysql:mydb';
 my $username = "root";
-my $password = "root100";
+my $password = "";
+
 
 # withou RasieError off:
  my $dbh  = DBI->connect($dsn,$username,$password) or 
