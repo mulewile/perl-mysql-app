@@ -15,10 +15,9 @@ print "Content-Type: text/html\n\n";
 # Create CGI object
 my $cgi = CGI->new();
 
-# Now, access the environment variables using %ENV
 my $dsn      = 'dbi:mysql:mydb';
 my $username = "root";
-my $password = "";
+my $password = "root100";
 
 
 # withou RasieError off:
@@ -42,9 +41,22 @@ if ($color_name && $color_meaning) {
     print "Form data stored successfully.";
 }
 
+# Handle DELETE request
+if ($cgi->request_method() eq 'DELETE') {
+    my $color_id = $cgi->param('id');
+
+    if ($color_id) {
+        my $delete_query = "DELETE FROM backgroundcolor WHERE id = ?";
+        my $delete_stmt = $dbh->prepare($delete_query);
+        $delete_stmt->execute($color_id) or die "Unable to execute SQL: $delete_stmt->errstr";
+        print "Record deleted successfully.";
+    }
+} 
+
 
 # Retrieve color data from MySQL database
 my $select_query = "SELECT 
+                        id,
                         color, 
                         color_meaning, 
                         color_memories,
@@ -53,25 +65,25 @@ FROM backgroundcolor as tbls ORDER BY id DESC LIMIT 10";
 my $select_stmt = $dbh->prepare($select_query);
 $select_stmt->execute();
 
-my ($color_name, $color_meaning, $color_memories, $color_count);
+my ($color_id, $color_name, $color_meaning, $color_memories, $color_count);
 my @last_ten_colors;
 
 while(my @daten = $select_stmt->fetchrow_array()){
-    $color_name     = $daten[0];
-    $color_meaning  = $daten[1];
-    $color_memories = $daten[2];
-    $color_count    = $daten[3];
+    $color_id       = $daten[0];
+    $color_name     = $daten[1];
+    $color_meaning  = $daten[2];
+    $color_memories = $daten[3];
+    $color_count    = $daten[4];
 
     # Hash.
     # Hash -> key -> value
-    push(@last_ten_colors, {"color_name" => $daten[0], "color_meaning" => $daten[1], "color_memories" => $daten[2],  "color_count" => $daten[3]});
+    push(@last_ten_colors, {"color_id" => $daten[0], "color_name" => $daten[1], "color_meaning" => $daten[2], "color_memories" => $daten[3],  "color_count" => $daten[4]});
 }
 
 # Get color frequency.
 
 my %color_data = ("color_object" => \@last_ten_colors);
 my $json = encode_json \%color_data;
-
 
 # Close the database connection
 $dbh->disconnect();

@@ -2,15 +2,16 @@ function getElement(selector) {
   return document.querySelector(`[data-js="${selector}"]`);
 }
 
+const colorInput = getElement("color");
 const bodyElement = getElement("body");
 const formElement = getElement("form");
-const colorInput = getElement("color");
 const moodElement = getElement("mood");
 const footerElement = getElement("footer");
 const meaningElement = getElement("meaning");
 const memoriesElement = getElement("memories");
 const colorListElement = getElement("colorList");
 const colorCountElement = getElement("colorCount");
+const errorMessageElement = getElement("errorMessage");
 
 function handleColorChange() {
   const colorName = colorInput.value;
@@ -33,15 +34,32 @@ async function fetchColorData() {
 
 function setColorContrast(bgColor, lightColor, darkColor) {
   const color = bgColor.charAt(0) === "#" ? bgColor.substring(1, 7) : bgColor;
-  const r = parseInt(color.substring(0, 2), 16); // hexToR
-  const g = parseInt(color.substring(2, 4), 16); // hexToG
-  const b = parseInt(color.substring(4, 6), 16); // hexToB
+  const r = parseInt(color.substring(0, 2), 16);
+  const g = parseInt(color.substring(2, 4), 16);
+  const b = parseInt(color.substring(4, 6), 16);
   return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? darkColor : lightColor;
 }
 
 function colorNameToHex(colour) {
   const lowerCaseColour = colour.toLowerCase();
   return colour.startsWith("#") ? colour : colorAPI[lowerCaseColour];
+}
+
+function deleteColorEntry(row, colorId) {
+  fetch(`./script.cgi?id=${colorId}`, {
+    method: "DELETE",
+  })
+    .then((response) => {
+      if (response.ok) {
+        row.remove();
+        handleOnPageLoad();
+      } else {
+        console.error("Error deleting color:", response.statusText);
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
 
 function setLastTenTable(colorData) {
@@ -77,12 +95,25 @@ function setLastTenTable(colorData) {
     countCell.textContent = color.color_count;
     row.append(countCell);
     colorListElement.append(row);
+
+    const actionButton = document.createElement("button");
+    actionButton.textContent = "Delete";
+    const actionCell = document.createElement("td");
+    actionCell.append(actionButton);
+    row.append(actionCell);
+
+    row.dataset.colorId = color.color_id;
+
+    actionButton.addEventListener("click", () => {
+      const colorId = row.dataset.colorId;
+      deleteColorEntry(row, colorId);
+    });
   }
 }
 
 async function getLastTenColors() {
   try {
-    const response = await fetch("script.cgi");
+    const response = await fetch("./script.cgi");
 
     if (!response.ok) {
       console.log("Error reading color from the server");
@@ -123,7 +154,7 @@ async function handleColorSubmit(event) {
   const isValid = validCssColor(color);
 
   if (isValid) {
-    const response = await fetch("script.cgi", {
+    const response = await fetch("./script.cgi", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -134,11 +165,13 @@ async function handleColorSubmit(event) {
     if (response.ok) {
       getLastTenColors();
       console.log("Color saved successfully", { status: response.status });
+      errorMessageElement.textContent = "";
     } else {
       console.log("Error saving color", { status: response.status });
+      errorMessageElement.textContent = "Error saving color.";
     }
   } else {
-    alert("Wrong color entered");
+    errorMessageElement.textContent = "Please enter a valid color.";
   }
 }
 

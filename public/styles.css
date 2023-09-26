@@ -49,6 +49,10 @@ p {
   cursor: pointer;
 }
 
+.errorMessage {
+  color: #ff0000; 
+}
+
 button {
   background-color: gainsboro;
   border: none;
