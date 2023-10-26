@@ -45,39 +45,44 @@ function colorNameToHex(colour) {
   return colour.startsWith("#") ? colour : colorAPI[lowerCaseColour];
 }
 
-function deleteColorEntry(row, colorId) {
-  fetch(`./script.cgi?id=${colorId}`, {
-    method: "DELETE",
-  })
-    .then((response) => {
-      if (response.ok) {
-        row.remove();
-        handleOnPageLoad();
-      } else {
-        console.error("Error deleting color:", response.statusText);
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
+async function deleteColorEntry(row, colorId) {
+  try {
+    const response = await fetch(`./script.cgi?id=${colorId}`, {
+      method: "DELETE",
     });
+
+    if (response.ok) {
+      row.remove();
+      handleOnPageLoad();
+    } else {
+      console.error("Error deleting color:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 
 function setLastTenTable(colorData) {
   const color_object = colorData.color_object;
+
+  if (color_object.length === 0) {
+    return;
+  }
+
   const { color_name, color_meaning, color_memories } = color_object[0];
 
   bodyElement.style.backgroundColor = color_name;
   moodElement.textContent = `My color is ${color_name}`;
   meaningElement.textContent = `${color_name} color associations: ${color_meaning}`;
-  memoriesElement.textContent = `The ${color_name} color brings me the memories like.: ${color_memories}`;
+  memoriesElement.textContent = `The ${color_name} color brings me memories like: ${color_memories}`;
 
-  document
-    .querySelectorAll(`[data-js="colorList"] tr`)
-    .forEach((e) => e.remove());
+  const colorListRows = document.querySelectorAll('[data-js="colorList"] tr');
+  colorListRows.forEach((row) => row.remove());
 
-  for (const color of color_object) {
+  color_object.forEach((color) => {
     const hexColor = colorNameToHex(color.color_name);
     const adjustedColor = setColorContrast(hexColor, "#FFFFFF", "#000000");
+
     const row = document.createElement("tr");
 
     const colorCell = document.createElement("td");
@@ -86,15 +91,16 @@ function setLastTenTable(colorData) {
     colorCell.style.color = adjustedColor;
     row.append(colorCell);
 
-    colorCell.addEventListener("click", (event) => {
-      const newBackgroundColor = event.target.innerHTML;
-      bodyElement.style.background = newBackgroundColor;
-    });
+    if (color.color_name) {
+      colorCell.addEventListener("click", (event) => {
+        const newBackgroundColor = event.target.textContent;
+        bodyElement.style.backgroundColor = newBackgroundColor;
+      });
+    }
 
     const countCell = document.createElement("td");
     countCell.textContent = color.color_count;
     row.append(countCell);
-    colorListElement.append(row);
 
     const actionButton = document.createElement("button");
     actionButton.textContent = "Delete";
@@ -105,18 +111,25 @@ function setLastTenTable(colorData) {
     row.dataset.colorId = color.color_id;
 
     actionButton.addEventListener("click", () => {
-      const colorId = row.dataset.colorId;
-      deleteColorEntry(row, colorId);
+      if (color.color_id) {
+        const colorId = row.dataset.colorId;
+        deleteColorEntry(row, colorId);
+      }
     });
-  }
+
+    colorListElement.append(row);
+  });
 }
 
 async function getLastTenColors() {
+  const API_URL = "./script.cgi";
+  const NETWORK_ERROR_MESSAGE = "Network error occurred while fetching data.";
+  const INVALID_DATA_MESSAGE = "Invalid or missing color data in the response.";
   try {
-    const response = await fetch("./script.cgi");
+    const response = await fetch(API_URL);
 
     if (!response.ok) {
-      console.log("Error reading color from the server");
+      console.log("Error:", NETWORK_ERROR_MESSAGE);
       return;
     }
 
@@ -125,10 +138,10 @@ async function getLastTenColors() {
     if (colorData) {
       setLastTenTable(colorData);
     } else {
-      console.log(`Invalid or missing color data in the response`);
+      console.log("Error:", INVALID_DATA_MESSAGE);
     }
   } catch (error) {
-    console.log(`Error: ${error.message}`);
+    console.log("Error:", error.message);
   }
 }
 
@@ -150,29 +163,39 @@ async function handleColorSubmit(event) {
   const formData = new FormData(event.target);
   const colorObject = Object.fromEntries(formData);
   const { color } = colorObject;
+
   bodyElement.style.backgroundColor = color;
   const isValid = validCssColor(color);
 
   if (isValid) {
-    const response = await fetch("./script.cgi", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams(formData),
-    });
+    try {
+      const response = await fetch("./script.cgi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams(formData),
+      });
 
-    if (response.ok) {
-      getLastTenColors();
-      console.log("Color saved successfully", { status: response.status });
-      errorMessageElement.textContent = "";
-    } else {
-      console.log("Error saving color", { status: response.status });
+      if (response.ok) {
+        getLastTenColors();
+        console.log("Color saved successfully", { status: response.status });
+        errorMessageElement.textContent = "";
+      } else {
+        handleSaveError(response.status);
+      }
+    } catch (error) {
+      console.error("Error saving color:", error);
       errorMessageElement.textContent = "Error saving color.";
     }
   } else {
     errorMessageElement.textContent = "Please enter a valid color.";
   }
+}
+
+function handleSaveError(status) {
+  console.log("Error saving color", { status });
+  errorMessageElement.textContent = "Error saving color.";
 }
 
 colorInput.addEventListener("input", handleColorChange);

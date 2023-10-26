@@ -15,16 +15,28 @@ print "Content-Type: text/html\n\n";
 # Create CGI object
 my $cgi = CGI->new();
 
-my $dsn      = 'dbi:mysql:mydb';
-my $username = "root";
-my $password = "root100";
+my $json_environmental_variables = "../.env.json";
 
+# Read the JSON file
+open my $json_file_handler, '<', $json_environmental_variables  or die "Failed to open $json_environmental_variables : $!";
+my $json_data;
+{
+    local $/;
+    $json_data = <$json_file_handler>;
+}
+close $json_file_handler;
 
-# withou RasieError off:
- my $dbh  = DBI->connect($dsn,$username,$password) or 
-            die("Error connecting to the database: $DBI::errstr\n");
+# Parse the JSON data
+my $config = decode_json($json_data);
 
-#print "Connected to the myDB database.";
+# Access the stored values
+my $dsn = $config->{dsn};
+my $username = $config->{username};
+my $password = $config->{password};
+
+# Connect to the database
+my $dbh = DBI->connect($dsn, $username, $password) or die("Error connecting to the database: $DBI::errstr\n");
+
 
 # Get form data
 my $color_name = $cgi->param('color');
@@ -69,14 +81,6 @@ my ($color_id, $color_name, $color_meaning, $color_memories, $color_count);
 my @last_ten_colors;
 
 while(my @daten = $select_stmt->fetchrow_array()){
-    $color_id       = $daten[0];
-    $color_name     = $daten[1];
-    $color_meaning  = $daten[2];
-    $color_memories = $daten[3];
-    $color_count    = $daten[4];
-
-    # Hash.
-    # Hash -> key -> value
     push(@last_ten_colors, {"color_id" => $daten[0], "color_name" => $daten[1], "color_meaning" => $daten[2], "color_memories" => $daten[3],  "color_count" => $daten[4]});
 }
 
