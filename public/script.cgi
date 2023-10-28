@@ -1,7 +1,5 @@
 #!C:/Strawberry/perl/bin/perl.exe
 
-# Your database code here, using $dsn, $username, and $password
-
 use strict;
 use warnings;
 use JSON;
@@ -15,24 +13,34 @@ print "Content-Type: text/html\n\n";
 # Create CGI object
 my $cgi = CGI->new();
 
-my $json_environmental_variables = "../.env.json";
+my $json_data = decode_json_environmental_variables( "../.env.json");
 
 # Read the JSON file
-open my $json_file_handler, '<', $json_environmental_variables  or die "Failed to open $json_environmental_variables : $!";
+
+sub decode_json_environmental_variables {
+
+my $json_environmental_variables = shift;
+
+open my $json_file_handler, 
+'<', $json_environmental_variables  
+or die "Failed to open $json_environmental_variables : $!";
 my $json_data;
 {
     local $/;
     $json_data = <$json_file_handler>;
 }
 close $json_file_handler;
+return $json_data;
+}
+
 
 # Parse the JSON data
-my $config = decode_json($json_data);
+my $configuration_data = decode_json($json_data);
 
 # Access the stored values
-my $dsn = $config->{dsn};
-my $username = $config->{username};
-my $password = $config->{password};
+my $dsn = $configuration_data->{dsn};
+my $username = $configuration_data->{username};
+my $password = $configuration_data->{password};
 
 # Connect to the database
 my $dbh = DBI->connect($dsn, $username, $password) or die("Error connecting to the database: $DBI::errstr\n");
@@ -43,37 +51,47 @@ my $color_name = $cgi->param('color');
 my $color_meaning = $cgi->param('colorMeaning');
 my $color_memories = $cgi->param('colorMemories');
 
-if ($color_name && $color_meaning) {
-    # Insert form data into the MySQL database
-    my $insert_query = "INSERT INTO backgroundcolor (color, color_meaning, color_memories) VALUES (?, ?, ?)";
-    my $insert_stmt = $dbh->prepare($insert_query);
-    $insert_stmt->execute($color_name, $color_meaning, $color_memories) or die "Unable to execute sql: $insert_stmt->errstr";
-    
-    # Output success message
-    print "Form data stored successfully.";
+sub insert_color_data {
+    my ($dbh, $color_name, $color_meaning, $color_memories) = @_;
+
+    # Check if both color_name and color_meaning are provided
+    if ($color_name && $color_meaning && $color_memories) {
+        my $insert_query = "INSERT INTO backgroundcolor (color, color_meaning, color_memories) VALUES (?, ?, ?)";
+        my $insert_stmt = $dbh->prepare($insert_query);
+        $insert_stmt->execute($color_name, $color_meaning, $color_memories) or return "Unable to execute SQL: $insert_stmt->errstr";
+    } 
 }
 
+insert_color_data($dbh, $color_name, $color_meaning, $color_memories);
+
 # Handle DELETE request
-if ($cgi->request_method() eq 'DELETE') {
-    my $color_id = $cgi->param('id');
+sub delete_color_data {
+    my ($cgi, $dbh, $color_id) = @_;
 
-    if ($color_id) {
-        my $delete_query = "DELETE FROM backgroundcolor WHERE id = ?";
-        my $delete_stmt = $dbh->prepare($delete_query);
-        $delete_stmt->execute($color_id) or die "Unable to execute SQL: $delete_stmt->errstr";
-        print "Record deleted successfully.";
+    if ($cgi->request_method() eq 'DELETE') {
+        if ($color_id) {
+            my $delete_query = "DELETE FROM backgroundcolor WHERE id = ?";
+            my $delete_stmt = $dbh->prepare($delete_query);
+            $delete_stmt->execute($color_id) or die "Unable to execute SQL: $delete_stmt->errstr";
+        }
     }
-} 
+}
 
+my $color_id = $cgi->param('id');
+delete_color_data($cgi, $dbh, $color_id);
 
 # Retrieve color data from MySQL database
-my $select_query = "SELECT 
-                        id,
-                        color, 
-                        color_meaning, 
-                        color_memories,
-(SELECT COUNT(main.color) FROM backgroundcolor as main where main.color = tbls.color) as color_count
-FROM backgroundcolor as tbls ORDER BY id DESC LIMIT 10";
+my $select_query = qq(
+        SELECT 
+          id,
+          color, 
+          color_meaning, 
+          color_memories,
+          (SELECT COUNT(main.color) FROM backgroundcolor as main where main.color = tbls.color) as color_count
+        FROM backgroundcolor as tbls
+        ORDER BY id DESC
+        LIMIT 10;
+);
 my $select_stmt = $dbh->prepare($select_query);
 $select_stmt->execute();
 

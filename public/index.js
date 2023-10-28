@@ -163,39 +163,29 @@ async function handleColorSubmit(event) {
   const formData = new FormData(event.target);
   const colorObject = Object.fromEntries(formData);
   const { color } = colorObject;
-
   bodyElement.style.backgroundColor = color;
   const isValid = validCssColor(color);
 
   if (isValid) {
-    try {
-      const response = await fetch("./script.cgi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams(formData),
-      });
+    const response = await fetch("./script.cgi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(formData),
+    });
 
-      if (response.ok) {
-        getLastTenColors();
-        console.log("Color saved successfully", { status: response.status });
-        errorMessageElement.textContent = "";
-      } else {
-        handleSaveError(response.status);
-      }
-    } catch (error) {
-      console.error("Error saving color:", error);
+    if (response.ok) {
+      getLastTenColors();
+      console.log("Color saved successfully", { status: response.status });
+      errorMessageElement.textContent = "";
+    } else {
+      console.log("Error saving color", { status: response.status });
       errorMessageElement.textContent = "Error saving color.";
     }
   } else {
     errorMessageElement.textContent = "Please enter a valid color.";
   }
-}
-
-function handleSaveError(status) {
-  console.log("Error saving color", { status });
-  errorMessageElement.textContent = "Error saving color.";
 }
 
 colorInput.addEventListener("input", handleColorChange);
