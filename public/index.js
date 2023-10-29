@@ -42,7 +42,12 @@ function setColorContrast(bgColor, lightColor, darkColor) {
 
 function colorNameToHex(colour) {
   const lowerCaseColour = colour.toLowerCase();
-  return colour.startsWith("#") ? colour : colorAPI[lowerCaseColour];
+
+  if (colour.startsWith("#")) {
+    return colour;
+  } else {
+    return colorAPI[lowerCaseColour];
+  }
 }
 
 async function deleteColorEntry(row, colorId) {
@@ -153,16 +158,19 @@ function handleOnPageLoad() {
 }
 
 function validCssColor(colorString) {
+  const lowerCaseColorString = colorString.toLowerCase();
   const string = new Option().style;
-  string.color = colorString.toLowerCase();
-  return string.color === colorString.toLowerCase();
+  string.color = lowerCaseColorString;
+  const isValidString = string.color === lowerCaseColorString;
+  const isValidHexPattern = /^#[0-9A-F]{6}$/i.test(colorString);
+  return isValidString || isValidHexPattern;
 }
 
 async function handleColorSubmit(event) {
-  event.preventDefault();
   const formData = new FormData(event.target);
   const colorObject = Object.fromEntries(formData);
   const { color } = colorObject;
+
   bodyElement.style.backgroundColor = color;
   const isValid = validCssColor(color);
 
@@ -178,6 +186,7 @@ async function handleColorSubmit(event) {
     if (response.ok) {
       getLastTenColors();
       console.log("Color saved successfully", { status: response.status });
+
       errorMessageElement.textContent = "";
     } else {
       console.log("Error saving color", { status: response.status });
@@ -187,7 +196,39 @@ async function handleColorSubmit(event) {
     errorMessageElement.textContent = "Please enter a valid color.";
   }
 }
+function hexToCssColorName(hexColor, colorLibrary) {
+  hexColor = hexColor.toLowerCase();
 
-colorInput.addEventListener("input", handleColorChange);
-formElement.addEventListener("submit", handleColorSubmit);
+  for (const colorName in colorLibrary) {
+    if (colorLibrary[colorName] === hexColor) {
+      return colorName;
+    }
+  }
+  console.log("No exact CSS color name found for " + hexColor);
+  return "";
+}
+
+function capitalizeFirstLetter(inputString) {
+  return inputString.charAt(0).toUpperCase() + inputString.slice(1);
+}
+
+colorInput.addEventListener("input", () => {
+  const inputValue = colorInput.value;
+  const firstLetterCapitalized = capitalizeFirstLetter(inputValue);
+  colorInput.value = firstLetterCapitalized;
+  handleColorChange();
+});
+
+formElement.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const inputValue = colorInput.value;
+  const isValid = validCssColor(inputValue);
+  if (inputValue.startsWith("#") && isValid) {
+    const convertedHexColor = hexToCssColorName(inputValue, colorAPI);
+    const firstLetterCapitalized = capitalizeFirstLetter(convertedHexColor);
+    colorInput.value = firstLetterCapitalized;
+  }
+  handleColorSubmit(event);
+});
+
 window.addEventListener("load", handleOnPageLoad);
