@@ -8,7 +8,6 @@ use CGI::Carp qw(fatalsToBrowser);
 use DBI;
 
 print "Content-Type: text/html\n\n";
-# print "Perl MySQL Connect demo\n";
 
 # Create CGI object
 my $cgi = CGI->new();
@@ -81,34 +80,48 @@ my $color_id = $cgi->param('id');
 delete_color_data($cgi, $dbh, $color_id);
 
 # Retrieve color data from MySQL database
-my $select_query = qq(
+sub get_last_ten_colors {
+    my ($dbh) = @_;
+
+    my $select_query = qq(
         SELECT 
-          id,
-          color, 
-          color_meaning, 
-          color_memories,
-          (SELECT COUNT(main.color) FROM backgroundcolor as main where main.color = tbls.color) as color_count
+            id,
+            color, 
+            color_meaning, 
+            color_memories,
+            (SELECT COUNT(main.color) FROM backgroundcolor as main WHERE main.color = tbls.color) as color_count
         FROM backgroundcolor as tbls
         ORDER BY id DESC
-        LIMIT 10;
-);
-my $select_stmt = $dbh->prepare($select_query);
-$select_stmt->execute();
+        LIMIT 10
+    );
 
-my ($color_id, $color_name, $color_meaning, $color_memories, $color_count);
-my @last_ten_colors;
+     my $select_stmt = $dbh->prepare($select_query);
+    die "Error in preparing query: " . $dbh->errstr if !$select_stmt;
+    
+    $select_stmt->execute();
+    die "Error in executing query: " . $select_stmt->errstr if $select_stmt->err;
 
-while(my @daten = $select_stmt->fetchrow_array()){
-    push(@last_ten_colors, {"color_id" => $daten[0], "color_name" => $daten[1], "color_meaning" => $daten[2], "color_memories" => $daten[3],  "color_count" => $daten[4]});
+    my @last_ten_colors;
+
+    while (my @daten = $select_stmt->fetchrow_array()) {
+        push(@last_ten_colors, {
+            "color_id"      => $daten[0],
+            "color_name"    => $daten[1],
+            "color_meaning" => $daten[2],
+            "color_memories" => $daten[3],
+            "color_count"   => $daten[4]
+        });
+    }
+
+    $select_stmt->finish(); 
+
+    my %color_data = ("color_object" => \@last_ten_colors);
+    my $json = encode_json \%color_data;
+
+    return $json;
 }
 
-# Get color frequency.
-
-my %color_data = ("color_object" => \@last_ten_colors);
-my $json = encode_json \%color_data;
-
-# Close the database connection
-$dbh->disconnect();
+my $json_data = get_last_ten_colors($dbh);
 
 # Output background color
-print "$json\n";
+print "$json_data\n";
