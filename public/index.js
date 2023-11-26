@@ -169,7 +169,7 @@ function validCssColor(colorString) {
 async function handleColorSubmit(event) {
   const formData = new FormData(event.target);
   const colorObject = Object.fromEntries(formData);
-  const { color } = colorObject;
+  const color = colorObject.color;
 
   bodyElement.style.backgroundColor = color;
   const isValid = validCssColor(color);
@@ -196,6 +196,7 @@ async function handleColorSubmit(event) {
     errorMessageElement.textContent = "Please enter a valid color.";
   }
 }
+
 function hexToCssColorName(hexColor, colorLibrary) {
   hexColor = hexColor.toLowerCase();
 
@@ -204,31 +205,59 @@ function hexToCssColorName(hexColor, colorLibrary) {
       return colorName;
     }
   }
-  console.log("No exact CSS color name found for " + hexColor);
-  return "";
+  return console.error("No exact CSS color name found for " + hexColor);
 }
 
 function capitalizeFirstLetter(inputString) {
   return inputString.charAt(0).toUpperCase() + inputString.slice(1);
 }
 
-colorInput.addEventListener("input", () => {
-  const inputValue = colorInput.value;
-  const firstLetterCapitalized = capitalizeFirstLetter(inputValue);
-  colorInput.value = firstLetterCapitalized;
-  handleColorChange();
-});
-
-formElement.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const inputValue = colorInput.value;
-  const isValid = validCssColor(inputValue);
-  if (inputValue.startsWith("#") && isValid) {
-    const convertedHexColor = hexToCssColorName(inputValue, colorAPI);
-    const firstLetterCapitalized = capitalizeFirstLetter(convertedHexColor);
+document.addEventListener("input", (event) => {
+  if (
+    event.target.tagName.toLowerCase() === "input" &&
+    event.target.type === "text" &&
+    event.target.name === "color"
+  ) {
+    const colorInput = event.target;
+    const inputValue = colorInput.value;
+    const firstLetterCapitalized = capitalizeFirstLetter(inputValue);
     colorInput.value = firstLetterCapitalized;
+    handleColorChange();
   }
-  handleColorSubmit(event);
 });
 
-window.addEventListener("load", handleOnPageLoad);
+document.addEventListener("submit", (event) => {
+  const isFormSubmit = event.target.tagName.toLowerCase() === "form";
+
+  if (isFormSubmit) {
+    event.preventDefault();
+
+    const colorInput = event.target.querySelector('[name="color"]');
+
+    if (colorInput) {
+      const inputValue = colorInput.value;
+      const isValid = validCssColor(inputValue);
+
+      if (inputValue.startsWith("#") && isValid) {
+        const convertedHexColor = hexToCssColorName(inputValue, colorAPI);
+        const firstLetterCapitalized = capitalizeFirstLetter(convertedHexColor);
+        colorInput.value = firstLetterCapitalized;
+      }
+
+      handleColorSubmit(event);
+    }
+  }
+});
+
+function DOMLoadStatus(status) {
+  console.info(status);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    DOMLoadStatus("DOM hasn't finished loading");
+  });
+} else {
+  DOMLoadStatus("DOM has finished loading");
+  handleOnPageLoad();
+}

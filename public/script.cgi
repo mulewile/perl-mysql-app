@@ -52,12 +52,15 @@ my $color_memories = $cgi->param('colorMemories');
 
 sub insert_color_data {
     my ($dbh, $color_name, $color_meaning, $color_memories) = @_;
+ 
 
     # Check if both color_name and color_meaning are provided
     if ($color_name && $color_meaning && $color_memories) {
         my $insert_query = "INSERT INTO backgroundcolor (color, color_meaning, color_memories) VALUES (?, ?, ?)";
         my $insert_stmt = $dbh->prepare($insert_query);
+        if($insert_stmt){
         $insert_stmt->execute($color_name, $color_meaning, $color_memories) or return "Unable to execute SQL: $insert_stmt->errstr";
+        }
     } 
 }
 
@@ -125,3 +128,5 @@ my $json_data = get_last_ten_colors($dbh);
 
 # Output background color
 print "$json_data\n";
+
+
