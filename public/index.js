@@ -67,63 +67,70 @@ async function deleteColorEntry(row, colorId) {
   }
 }
 
-function setLastTenTable(colorData) {
+function setColorDetail(colorData) {
   const color_object = colorData.color_object;
-
-  if (color_object.length === 0) {
-    return;
-  }
-
   const { color_name, color_meaning, color_memories } = color_object[0];
 
   bodyElement.style.backgroundColor = color_name;
   moodElement.textContent = `My color is ${color_name}`;
   meaningElement.textContent = `${color_name} color associations: ${color_meaning}`;
   memoriesElement.textContent = `The ${color_name} color brings me memories like: ${color_memories}`;
+}
 
-  const colorListRows = document.querySelectorAll('[data-js="colorList"] tr');
+function setLastTenTable(colorData) {
+  const colorListElement = document.querySelector('[data-js="colorList"]');
+  let colorListRows = colorListElement.querySelectorAll("tr");
+  //colorListElement.innerHTML = "";
+
   colorListRows.forEach((row) => row.remove());
+  colorListRows.forEach((row) => row.remove());
+  for (const color of colorData.color_object) {
+    const color_object = colorData.color_object;
 
-  color_object.forEach((color) => {
-    const hexColor = colorNameToHex(color.color_name);
-    const adjustedColor = setColorContrast(hexColor, "#FFFFFF", "#000000");
-
-    const row = document.createElement("tr");
-
-    const colorCell = document.createElement("td");
-    colorCell.style.backgroundColor = color.color_name;
-    colorCell.textContent = color.color_name;
-    colorCell.style.color = adjustedColor;
-    row.append(colorCell);
-
-    if (color.color_name) {
-      colorCell.addEventListener("click", (event) => {
-        const newBackgroundColor = event.target.textContent;
-        bodyElement.style.backgroundColor = newBackgroundColor;
-      });
+    if (color_object.length === 0) {
+      return;
     }
+    const colourTableTh = document.querySelectorAll('[id="colourTable"] tr th');
+    const row = document.createElement("tr");
+    //colorListRows.forEach((row) => row.remove());
 
-    const countCell = document.createElement("td");
-    countCell.textContent = color.color_count;
-    row.append(countCell);
+    colourTableTh.forEach((tableTh) => {
+      const detail = tableTh.dataset.name;
+      const dataCell = document.createElement("td");
+      dataCell.setAttribute("data-name", detail);
+      dataCell.style.backgroundColor = color[detail];
+      dataCell.textContent = color[detail];
+      row.append(dataCell);
 
-    const actionButton = document.createElement("button");
-    actionButton.textContent = "Delete";
-    const actionCell = document.createElement("td");
-    actionCell.append(actionButton);
-    row.append(actionCell);
+      if (detail === "color_name") {
+        const hexColor = colorNameToHex(color[detail]);
+        const adjustedColor = setColorContrast(hexColor, "#FFFFFF", "#000000");
+        dataCell.style.color = adjustedColor;
+        dataCell.addEventListener("click", (event) => {
+          const newBackgroundColor = event.target.textContent;
+          bodyElement.style.backgroundColor = newBackgroundColor;
+        });
+      } else if (detail === "color_count") {
+        dataCell.textContent = color[detail];
+        row.append(dataCell);
+      } else if (detail === "aktion") {
+        const actionButton = document.createElement("button");
+        actionButton.textContent = "Delete";
+        dataCell.append(actionButton);
+        row.append(dataCell);
 
-    row.dataset.colorId = color.color_id;
-
-    actionButton.addEventListener("click", () => {
-      if (color.color_id) {
-        const colorId = row.dataset.colorId;
-        deleteColorEntry(row, colorId);
+        row.dataset.colorId = color.color_id;
+        actionButton.addEventListener("click", () => {
+          if (color.color_id) {
+            const colorId = row.dataset.colorId;
+            deleteColorEntry(row, colorId);
+          }
+        });
       }
-    });
 
-    colorListElement.append(row);
-  });
+      colorListElement.append(row);
+    });
+  }
 }
 
 async function getLastTenColors() {
@@ -142,6 +149,7 @@ async function getLastTenColors() {
 
     if (colorData) {
       setLastTenTable(colorData);
+      setColorDetail(colorData);
     } else {
       console.log("Error:", INVALID_DATA_MESSAGE);
     }
