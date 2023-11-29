@@ -51,19 +51,24 @@ function colorNameToHex(colour) {
 }
 
 async function deleteColorEntry(row, colorId) {
+  const API_URL = `./script.cgi?id=${colorId}`;
+  const NETWORK_ERROR_MESSAGE = "Network error occurred while deleting data.";
+  const ERROR_MESSAGE = "Error deleting color:";
+  const SUCCESS_MESSAGE = "Color deleted successfully";
   try {
-    const response = await fetch(`./script.cgi?id=${colorId}`, {
+    const response = await fetch(API_URL, {
       method: "DELETE",
     });
 
     if (response.ok) {
       row.remove();
       handleOnPageLoad();
+      console.info(SUCCESS_MESSAGE, response.statusText);
     } else {
-      console.error("Error deleting color:", response.statusText);
+      console.error(ERROR_MESSAGE, response.statusText);
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error(NETWORK_ERROR_MESSAGE, error);
   }
 }
 
@@ -113,7 +118,7 @@ function setLastTenTable(colorData) {
       } else if (detail === "color_count") {
         dataCell.textContent = color[detail];
         row.append(dataCell);
-      } else if (detail === "aktion") {
+      } else if (detail === "aktion one") {
         const actionButton = document.createElement("button");
         actionButton.textContent = "Delete";
         dataCell.append(actionButton);
@@ -124,6 +129,18 @@ function setLastTenTable(colorData) {
           if (color.color_id) {
             const colorId = row.dataset.colorId;
             deleteColorEntry(row, colorId);
+          }
+        });
+      } else if (detail === "aktion two") {
+        const actionButton = document.createElement("button");
+        actionButton.textContent = "Edit";
+        dataCell.append(actionButton);
+        row.append(dataCell);
+
+        row.dataset.colorId = color.color_id;
+        actionButton.addEventListener("click", () => {
+          if (color.color_id) {
+            const colorId = row.dataset.colorId;
           }
         });
       }
@@ -174,7 +191,7 @@ function validCssColor(colorString) {
   return isValidString || isValidHexPattern;
 }
 
-async function handleColorSubmit(event) {
+function handleColorSubmit(event) {
   const formData = new FormData(event.target);
   const colorObject = Object.fromEntries(formData);
   const color = colorObject.color;
@@ -182,8 +199,19 @@ async function handleColorSubmit(event) {
   bodyElement.style.backgroundColor = color;
   const isValid = validCssColor(color);
 
-  if (isValid) {
-    const response = await fetch("./script.cgi", {
+  isValid
+    ? postColorData(formData)
+    : (errorMessageElement.textContent = "Please Enter a Valid Colour.");
+}
+
+async function postColorData(formData) {
+  const API_URL = "./script.cgi";
+  const NETWORK_ERROR_MESSAGE = "Network error occurred while inserting data.";
+  const ERROR_MESSAGE = "Error saving color.";
+  const SUCCESS_MESSAGE = "Color saved successfully";
+
+  try {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -193,15 +221,14 @@ async function handleColorSubmit(event) {
 
     if (response.ok) {
       getLastTenColors();
-      console.log("Color saved successfully", { status: response.status });
-
+      console.info(SUCCESS_MESSAGE, { status: response.status });
       errorMessageElement.textContent = "";
-    } else {
-      console.log("Error saving color", { status: response.status });
-      errorMessageElement.textContent = "Error saving color.";
+    } else if (!response.ok) {
+      console.info(ERROR_MESSAGE, { status: response.status });
+      errorMessageElement.textContent = ERROR_MESSAGE;
     }
-  } else {
-    errorMessageElement.textContent = "Please enter a valid color.";
+  } catch (error) {
+    console.error(NETWORK_ERROR_MESSAGE, error);
   }
 }
 
@@ -216,8 +243,13 @@ function hexToCssColorName(hexColor, colorLibrary) {
   return console.error("No exact CSS color name found for " + hexColor);
 }
 
-function capitalizeFirstLetter(inputString) {
-  return inputString.charAt(0).toUpperCase() + inputString.slice(1);
+function capitaliseFirstLetter(inputString) {
+  const string = inputString.charAt(0).toUpperCase() + inputString.slice(1);
+  if (string) {
+    return string;
+  } else {
+    console.error("No input string found");
+  }
 }
 
 document.addEventListener("input", (event) => {
@@ -228,14 +260,19 @@ document.addEventListener("input", (event) => {
   ) {
     const colorInput = event.target;
     const inputValue = colorInput.value;
-    const firstLetterCapitalized = capitalizeFirstLetter(inputValue);
-    colorInput.value = firstLetterCapitalized;
-    handleColorChange();
+    if (inputValue === "") {
+      console.error("Invalid color");
+      return;
+    } else {
+      const firstLetterCapitalised = capitaliseFirstLetter(inputValue);
+      colorInput.value = firstLetterCapitalised;
+      handleColorChange();
+    }
   }
 });
 
 document.addEventListener("submit", (event) => {
-  const isFormSubmit = event.target.tagName.toLowerCase() === "form";
+  const isFormSubmit = event.target.matches(".form");
 
   if (isFormSubmit) {
     event.preventDefault();
@@ -248,8 +285,8 @@ document.addEventListener("submit", (event) => {
 
       if (inputValue.startsWith("#") && isValid) {
         const convertedHexColor = hexToCssColorName(inputValue, colorAPI);
-        const firstLetterCapitalized = capitalizeFirstLetter(convertedHexColor);
-        colorInput.value = firstLetterCapitalized;
+        const firstLetterCapitalised = capitaliseFirstLetter(convertedHexColor);
+        colorInput.value = firstLetterCapitalised;
       }
 
       handleColorSubmit(event);
