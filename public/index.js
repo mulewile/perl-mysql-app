@@ -33,11 +33,20 @@ async function fetchColorData() {
 }
 
 function setColorContrast(bgColor, lightColor, darkColor) {
-  const color = bgColor.charAt(0) === "#" ? bgColor.substring(1, 7) : bgColor;
-  const r = parseInt(color.substring(0, 2), 16);
-  const g = parseInt(color.substring(2, 4), 16);
-  const b = parseInt(color.substring(4, 6), 16);
-  return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? darkColor : lightColor;
+  const isValidColor = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(bgColor);
+  if (!isValidColor) {
+    throw new Error(
+      "Invalid background color format. Please use valid hexadecimal color."
+    );
+  }
+  const hexToRgb = (hex) => parseInt(hex, 16);
+  const r = hexToRgb(bgColor.substring(1, 3));
+  const g = hexToRgb(bgColor.substring(3, 5));
+  const b = hexToRgb(bgColor.substring(5, 7));
+
+  const luminance = r * 0.299 + g * 0.587 + b * 0.114;
+
+  return luminance > 186 ? darkColor : lightColor;
 }
 
 function colorNameToHex(colour) {
@@ -72,14 +81,25 @@ async function deleteColorEntry(row, colorId) {
   }
 }
 
-function setColorDetail(colorData) {
-  const color_object = colorData.color_object;
-  const { color_name, color_meaning, color_memories } = color_object[0];
+function setColorDetail({ color_object }) {
+  try {
+    if (
+      !color_object ||
+      !Array.isArray(color_object) ||
+      color_object.length === 0
+    ) {
+      throw new Error("Invalid color data structure");
+    }
 
-  bodyElement.style.backgroundColor = color_name;
-  moodElement.textContent = `My color is ${color_name}`;
-  meaningElement.textContent = `${color_name} color associations: ${color_meaning}`;
-  memoriesElement.textContent = `The ${color_name} color brings me memories like: ${color_memories}`;
+    const { color_name, color_meaning, color_memories } = color_object[0];
+
+    bodyElement.style.backgroundColor = color_name;
+    moodElement.textContent = `My color is ${color_name}`;
+    meaningElement.textContent = `${color_name} color associations: ${color_meaning}`;
+    memoriesElement.textContent = `The ${color_name} color brings me memories like: ${color_memories}`;
+  } catch (error) {
+    console.error("Error setting color details:", error.message);
+  }
 }
 
 function setLastTenTable(colorData) {
@@ -87,7 +107,6 @@ function setLastTenTable(colorData) {
   let colorListRows = colorListElement.querySelectorAll("tr");
   //colorListElement.innerHTML = "";
 
-  colorListRows.forEach((row) => row.remove());
   colorListRows.forEach((row) => row.remove());
   for (const color of colorData.color_object) {
     const color_object = colorData.color_object;
