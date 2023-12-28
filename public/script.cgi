@@ -56,7 +56,7 @@ sub insert_color_data {
 
     # Check if both color_name and color_meaning are provided
     if ($color_name && $color_meaning && $color_memories) {
-        my $insert_query = "INSERT INTO backgroundcolor (color, color_meaning, color_memories) VALUES (?, ?, ?)";
+        my $insert_query = "INSERT INTO backgroundcolor (COLOR_NAME, COLOR_MEANING, COLOR_MEMORIES) VALUES (?, ?, ?)";
         my $insert_stmt = $dbh->prepare($insert_query);
         if($insert_stmt){
         $insert_stmt->execute($color_name, $color_meaning, $color_memories) or return "Unable to execute SQL: $insert_stmt->errstr";
