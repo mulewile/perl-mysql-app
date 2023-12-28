@@ -264,6 +264,8 @@ async function postColorData(formData) {
       getLastTenColors();
       console.info(SUCCESS_MESSAGE, { status: response.status });
       errorMessageElement.textContent = "";
+      formWrapperElement.classList.add("hidden");
+      colorListContainerElement.classList.remove("hidden");
     } else if (!response.ok) {
       console.info(ERROR_MESSAGE, { status: response.status });
       errorMessageElement.textContent = ERROR_MESSAGE;
