@@ -2,6 +2,20 @@ function getElement(selector) {
   return document.querySelector(`[data-js="${selector}"]`);
 }
 
+function genereateElement(elementName, classNames, elementTextContent) {
+  const element = document.createElement(elementName);
+
+  if (classNames && classNames.length) {
+    element.classList.add(...classNames);
+  }
+
+  if (elementTextContent) {
+    element.textContent = elementTextContent;
+  }
+
+  return element;
+}
+
 const colorInput = getElement("color");
 const bodyElement = getElement("body");
 const formElement = getElement("form");
@@ -12,6 +26,13 @@ const memoriesElement = getElement("memories");
 const colorListElement = getElement("colorList");
 const colorCountElement = getElement("colorCount");
 const errorMessageElement = getElement("errorMessage");
+const addButtonContainerElement = getElement("addButtonContainer");
+const formWrapperElement = getElement("formWrapper");
+const colorListContainerElement = getElement("colorListContainer");
+
+const addButton = genereateElement("button", ["add_button--color"], "add");
+
+addButtonContainerElement.appendChild(addButton);
 
 function handleColorChange() {
   const colorName = colorInput.value;
@@ -170,13 +191,14 @@ function setLastTenTable(colorData) {
 
 async function getLastTenColors() {
   const API_URL = "./script.cgi";
+  const ERROR = "Error:";
   const NETWORK_ERROR_MESSAGE = "Network error occurred while fetching data.";
   const INVALID_DATA_MESSAGE = "Invalid or missing color data in the response.";
   try {
     const response = await fetch(API_URL);
 
     if (!response.ok) {
-      console.log("Error:", NETWORK_ERROR_MESSAGE);
+      console.log(ERROR, NETWORK_ERROR_MESSAGE);
       return;
     }
 
@@ -186,10 +208,10 @@ async function getLastTenColors() {
       setLastTenTable(colorData);
       setColorDetail(colorData);
     } else {
-      console.log("Error:", INVALID_DATA_MESSAGE);
+      console.log(ERROR, INVALID_DATA_MESSAGE);
     }
   } catch (error) {
-    console.log("Error:", error.message);
+    console.log(ERROR, error.message);
   }
 }
 
@@ -233,6 +255,7 @@ async function postColorData(formData) {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
+        action: "post color data",
       },
       body: new URLSearchParams(formData),
     });
@@ -324,3 +347,15 @@ if (document.readyState === "loading") {
   DOMLoadStatus("DOM has finished loading");
   handleOnPageLoad();
 }
+
+document.addEventListener("click", (event) => {
+  console.log(event.target);
+  if (event.target.matches(".add_button--color")) {
+    formWrapperElement.classList.remove("hidden");
+    colorListContainerElement.classList.add("hidden");
+  }
+  if (event.target.matches(".button--cancel")) {
+    formWrapperElement.classList.add("hidden");
+    colorListContainerElement.classList.remove("hidden");
+  }
+});

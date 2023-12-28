@@ -1,3 +1,12 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+
 header {
   background-color: bisque;
   position: fixed;
@@ -92,19 +101,26 @@ input[type="text"]:focus{
   box-shadow: 0 9px 11px rgba(47, 46, 47, 0.2);
 }
 
-.colorList {
-  border-radius: 10px;
-  background-color: antiquewhite;
-  box-shadow: 0 9px 11px rgba(47, 46, 47, 0.2);
+.color_list-container {
+margin-top: 365px;
+margin-bottom: 90px;
   padding: 0.5rem;
 }
 
+.add_button-container{
+  display: flex;
+    margin-bottom: 2rem;
+    flex-direction: row;
+    justify-content: center;
+  margin-bottom: 2rem;
+}
+
 table{
+  
   border-radius: 0.5rem;
   padding: 8px;
 	border-collapse: collapse;
   overflow: hidden;
-  box-shadow: 0 9px 11px rgba(47, 46, 47, 0.2);
   cursor: pointer;
 }
 
@@ -127,4 +143,8 @@ footer{
     width: 100%;
     text-align: center;
     padding: 1rem;
+}
+
+.hidden{
+  display: none;
 }

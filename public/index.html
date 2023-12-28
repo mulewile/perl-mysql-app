@@ -12,7 +12,7 @@
       <h1>MY COLOR MOOD DATABANK</h1>
     </header>
     <main class="mainWrapper">
-      <div class="formWrapper">
+      <div class="formWrapper hidden" data-js="formWrapper">
         <section class="colorDetails">
           <p>
             Just like words, colors have the ability to convey emotions, moods,
@@ -68,14 +68,20 @@
           <button class="save-button" type="submit" data-js="button">
             Speichern
           </button>
+          <button class="button--cancel" data-js="cancelButton">
+            Schliessen
+          </button>
         </form>
       </div>
-      <div class="colorList">
+      <div class="color_list-container" data-js="colorListContainer">
+        <div class="add_button-container" data-js="addButtonContainer"></div>
         <table id="colourTable">
           <thead>
             <tr>
               <th data-name="color_name">Farbe</th>
               <th data-name="color_count">Anzahl</th>
+              <th data-name="color_meaning">Bedeutung</th>
+              <th data-name="color_memories">Erinnerung</th>
               <th data-name="aktion one">Aktion one</th>
               <th data-name="aktion two">Aktion two</th>
             </tr>
