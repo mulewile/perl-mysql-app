@@ -44,6 +44,18 @@ my $password = $configuration_data->{password};
 # Connect to the database
 my $dbh = DBI->connect($dsn, $username, $password) or die("Error connecting to the database: $DBI::errstr\n");
 
+my $request = $cgi->param('POSTDATA');
+
+my $request_body;
+if ($request){
+$request_body = decode_json($request)
+};
+
+my $action = $request_body ->{action};
+
+
+
+
 
 # Get form data
 my $color_name = $cgi->param('color');
@@ -128,5 +140,3 @@ my $json_data = get_last_ten_colors($dbh);
 
 # Output background color
 print "$json_data\n";
-
-
