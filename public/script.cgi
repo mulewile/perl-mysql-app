@@ -88,11 +88,11 @@ sub get_last_ten_colors {
 
     my $select_query = qq(
         SELECT 
-            id,
-            color, 
-            color_meaning, 
-            color_memories,
-            (SELECT COUNT(main.color) FROM backgroundcolor as main WHERE main.color = tbls.color) as color_count
+            ID,
+            COLOR_NAME, 
+            COLOR_MEANING, 
+            COLOR_MEMORIES,
+            (SELECT COUNT(main.COLOR_NAME) FROM backgroundcolor as main WHERE main.COLOR_NAME = tbls.COLOR_NAME) as color_count
         FROM backgroundcolor as tbls
         ORDER BY id DESC
         LIMIT 10

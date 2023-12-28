@@ -116,7 +116,6 @@ function setLastTenTable(colorData) {
     }
     const colourTableTh = document.querySelectorAll('[id="colourTable"] tr th');
     const row = document.createElement("tr");
-    //colorListRows.forEach((row) => row.remove());
 
     colourTableTh.forEach((tableTh) => {
       const detail = tableTh.dataset.name;
