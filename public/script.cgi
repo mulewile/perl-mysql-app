@@ -7,7 +7,7 @@ use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 use DBI;
 
-print "Content-Type: text/html\n\n";
+
 
 # Create CGI object
 my $cgi = CGI->new();
@@ -53,14 +53,15 @@ $request_body = decode_json($request)
 
 my $action = $request_body ->{action};
 
-
-
-
-
 # Get form data
-my $color_name = $cgi->param('color');
-my $color_meaning = $cgi->param('colorMeaning');
-my $color_memories = $cgi->param('colorMemories');
+my $color_name = $request_body ->{color};
+my $color_meaning = $request_body ->{colorMeaning};
+my $color_memories = $request_body ->{colorMemories};
+
+if($action eq "post color data"){
+insert_color_data($dbh, $color_name, $color_meaning, $color_memories);
+  debug_output("Values($color_name)");
+}
 
 sub insert_color_data {
     my ($dbh, $color_name, $color_meaning, $color_memories) = @_;
@@ -68,6 +69,7 @@ sub insert_color_data {
 
     # Check if both color_name and color_meaning are provided
     if ($color_name && $color_meaning && $color_memories) {
+      
         my $insert_query = "INSERT INTO backgroundcolor (COLOR_NAME, COLOR_MEANING, COLOR_MEMORIES) VALUES (?, ?, ?)";
         my $insert_stmt = $dbh->prepare($insert_query);
         if($insert_stmt){
@@ -76,7 +78,6 @@ sub insert_color_data {
     } 
 }
 
-insert_color_data($dbh, $color_name, $color_meaning, $color_memories);
 
 # Handle DELETE request
 sub delete_color_data {
@@ -136,7 +137,25 @@ sub get_last_ten_colors {
     return $json;
 }
 
+sub main_load{
+    print "Content-Type: text/html\n\n";
 my $json_data = get_last_ten_colors($dbh);
 
 # Output background color
 print "$json_data\n";
+
+}
+
+main_load();
+
+
+sub debug_output {
+    my @output = @_;
+
+    print "Content-Type: text/html\n\n";
+    foreach (@output) {
+        print($_);
+        print('<br>');
+    }
+    exit;
+}

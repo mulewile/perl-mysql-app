@@ -238,9 +238,10 @@ function handleColorSubmit(event) {
 
   bodyElement.style.backgroundColor = color;
   const isValid = validCssColor(color);
-
+  console.log("Form data", formData);
+  console.log("colorObject", colorObject);
   isValid
-    ? postColorData(formData)
+    ? postColorData(colorObject)
     : (errorMessageElement.textContent = "Please Enter a Valid Colour.");
 }
 
@@ -254,10 +255,9 @@ async function postColorData(formData) {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        action: "post color data",
+        "Content-Type": "application/json",
       },
-      body: new URLSearchParams(formData),
+      body: JSON.stringify({ ...formData, action: "post color data" }),
     });
 
     if (response.ok) {
