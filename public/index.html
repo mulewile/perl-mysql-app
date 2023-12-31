@@ -12,6 +12,8 @@
       <h1>MY COLOR MOOD DATABANK</h1>
     </header>
     <main class="mainWrapper">
+      <div class="errorMessage hidden" data-js="errorMessage"></div>
+      <div class="message--success hidden" data-js="successMessage"></div>
       <div class="formWrapper hidden" data-js="formWrapper">
         <section class="colorDetails">
           <p>
@@ -37,7 +39,7 @@
               required
               data-js="color"
             />
-            <div class="errorMessage" data-js="errorMessage"></div>
+
             <label for="colorMeaning" class="colorMeaningLabel"
               >Farbe Bedeutung</label
             >
@@ -73,6 +75,7 @@
           </button>
         </form>
       </div>
+
       <div class="color_list-container" data-js="colorListContainer">
         <div class="add_button-container" data-js="addButtonContainer"></div>
         <table id="colourTable">

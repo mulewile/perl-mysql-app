@@ -59,7 +59,17 @@ p {
 }
 
 .errorMessage {
+  display: flex;
+  position: fixed;
   color: #ff0000; 
+}
+
+.message--success{
+  display: flex;
+  position: fixed;
+ background-color: rgb(172, 234, 172);
+ border: 2px solid rgb(9, 59, 9);
+
 }
 
 button {
