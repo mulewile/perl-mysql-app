@@ -60,23 +60,29 @@ my $color_memories = $request_body ->{colorMemories};
 
 if($action eq "post color data"){
 insert_color_data($dbh, $color_name, $color_meaning, $color_memories);
-  debug_output("Values($color_name)");
 }
 
 sub insert_color_data {
     my ($dbh, $color_name, $color_meaning, $color_memories) = @_;
- 
 
-    # Check if both color_name and color_meaning are provided
-    if ($color_name && $color_meaning && $color_memories) {
-      
-        my $insert_query = "INSERT INTO backgroundcolor (COLOR_NAME, COLOR_MEANING, COLOR_MEMORIES) VALUES (?, ?, ?)";
-        my $insert_stmt = $dbh->prepare($insert_query);
-        if($insert_stmt){
-        $insert_stmt->execute($color_name, $color_meaning, $color_memories) or return "Unable to execute SQL: $insert_stmt->errstr";
-        }
-    } 
+    if (not defined $color_name or $color_name eq '') {
+        die "Error: Please provide a color name\n";
+    }
+
+    my $insert_query = "INSERT INTO backgroundcolor (COLOR_NAME, COLOR_MEANING, COLOR_MEMORIES) VALUES (?, ?, ?)";
+    my $insert_stmt = $dbh->prepare($insert_query);
+
+    if (not $insert_stmt) {
+        die "Error: Unable to prepare SQL: " . $dbh->errstr . "\n";
+    }
+
+    $insert_stmt->execute($color_name, $color_meaning, $color_memories);
+
+    if ($insert_stmt->err) {
+        die "Error: " . $insert_stmt->errstr . "\n";
+    }
 }
+
 
 
 # Handle DELETE request
