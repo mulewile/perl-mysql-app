@@ -53,19 +53,25 @@ $request_body = decode_json($request)
 
 my $action = $request_body ->{action};
 
+
+
+if($action eq "post color data"){
+insert_color_data($dbh);
+} else{
+    main_load();
+}
+
+sub insert_color_data {
 # Get form data
 my $color_name = $request_body ->{color};
 my $color_meaning = $request_body ->{colorMeaning};
 my $color_memories = $request_body ->{colorMemories};
 
-if($action eq "post color data"){
-insert_color_data($dbh, $color_name, $color_meaning, $color_memories);
-}
 
-sub insert_color_data {
-    my ($dbh, $color_name, $color_meaning, $color_memories) = @_;
+    my $dbh = shift;
 
     if (not defined $color_name or $color_name eq '') {
+        print_json({"Error" => "Please provide a color name"});
         die "Error: Please provide a color name\n";
     }
 
@@ -81,6 +87,7 @@ sub insert_color_data {
     if ($insert_stmt->err) {
         die "Error: " . $insert_stmt->errstr . "\n";
     }
+    print_json({"Success" => "The Color $color_name has been inserted successfuly"});
 }
 
 
@@ -152,7 +159,7 @@ print "$json_data\n";
 
 }
 
-main_load();
+
 
 
 sub debug_output {
@@ -164,4 +171,13 @@ sub debug_output {
         print('<br>');
     }
     exit;
+}
+
+sub print_json{
+    my $json = shift;
+
+    my $output = to_json($json);
+
+    print $cgi->header("application/json");
+    print($output); 
 }
