@@ -2,7 +2,13 @@ function getElement(selector) {
   return document.querySelector(`[data-js="${selector}"]`);
 }
 
-function genereateElement(elementName, classNames, elementTextContent) {
+function genereateElement(
+  elementName,
+  classNames,
+  elementTextContent,
+  attribute,
+  attributeValue
+) {
   const element = document.createElement(elementName);
 
   if (classNames && classNames.length) {
@@ -11,6 +17,10 @@ function genereateElement(elementName, classNames, elementTextContent) {
 
   if (elementTextContent) {
     element.textContent = elementTextContent;
+  }
+
+  if (attribute) {
+    element.setAttribute(attribute, attributeValue);
   }
 
   return element;
