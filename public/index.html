@@ -11,7 +11,57 @@
     <header>
       <h1>MY COLOR MOOD DATABANK</h1>
     </header>
-    <main class="mainWrapper">
+    <div class="form--signUp" id="formSignUp" data-js="formSignUp">
+      <form id="signupForm" data-js="signupForm" class="form">
+        <h3 class="form__title">SIGN UP</h3>
+
+        <label for="firstnameInput" class="form__label"></label>
+        <input
+          type="text"
+          id="firstnameInput"
+          class="form__input"
+          placeholder="First Name"
+          name="firstname_input"
+          required
+        />
+
+        <label for="lastnameInput" class="form__label"></label>
+        <input
+          type="text"
+          id="lastnameInput"
+          class="form__input"
+          placeholder="Last Name"
+          name="lastname_input"
+          required
+        />
+
+        <label for="emailInput" class="form__label"></label>
+        <input
+          type="text"
+          id="emailInput"
+          class="form__input"
+          placeholder="Email"
+          name="email_input"
+          required
+        />
+
+        <label for="passwordInput" class="form__label"></label>
+        <input
+          type="password"
+          id="passwordInput"
+          class="form__input"
+          placeholder="Password"
+          name="password_input"
+          required
+        />
+
+        <button type="submit" id="submitButton" class="form__button">
+          REGISTER
+        </button>
+      </form>
+    </div>
+
+    <main class="mainWrapper hidden">
       <div class="errorMessage hidden" data-js="errorMessage"></div>
       <div class="message--success hidden" data-js="successMessage"></div>
       <div class="formWrapper hidden" data-js="formWrapper">
