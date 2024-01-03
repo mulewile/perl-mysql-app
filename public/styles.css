@@ -64,6 +64,51 @@ p {
   color: #ff0000; 
 }
 
+.form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form__title {
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.form__group {
+  margin-bottom: 20px;
+}
+
+.form__label {
+  display: block;
+  font-size: 0.8em;
+  margin-bottom: 5px;
+}
+
+.form__input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form__button {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px 15px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.form__button:hover {
+  background-color: #1e5720;
+}
+
+
 .message--success{
   display: flex;
   position: fixed;
