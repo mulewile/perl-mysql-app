@@ -6,6 +6,7 @@ use JSON;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 use DBI;
+use Crypt::SaltedHash;
 
 
 
@@ -57,7 +58,10 @@ my $action = $request_body ->{action};
 
 if($action eq "post color data"){
 insert_color_data($dbh);
-} else{
+} elsif($action eq "create user"){
+    generate_hashed_password();
+}
+    else{
     main_load();
 }
 
@@ -148,6 +152,20 @@ sub get_last_ten_colors {
     my $json = encode_json \%color_data;
 
     return $json;
+}
+
+
+sub generate_hashed_password{
+my $username = $request_body->{username_input};
+my $user_password = $request_body->{password_input};
+
+my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
+
+$salted_object->add($user_password);
+ 
+my $hashed_password = $salted_object->generate;
+
+print_json({"success" => "User created successfully"})
 }
 
 sub main_load{
