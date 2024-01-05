@@ -155,18 +155,46 @@ sub get_last_ten_colors {
 }
 
 
-sub generate_hashed_password{
-my $username = $request_body->{username_input};
-my $user_password = $request_body->{password_input};
+use strict;
+use warnings;
+use Crypt::SaltedHash;
+use DBI;
 
-my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
+sub generate_hashed_password {
+    my $firstname = $request_body->{firstname_input};
+    my $lastname = $request_body->{lastname_input};
+    my $username = $request_body->{username_input};
+    my $email = $request_body->{email_input};
+    my $user_password = $request_body->{password_input};
 
-$salted_object->add($user_password);
- 
-my $hashed_password = $salted_object->generate;
 
-print_json({"success" => "User created successfully"})
+
+    # Check if the username already exists
+    my $check_username_query = "SELECT COUNT(*) FROM tbl_user_data WHERE USER_NAME = ?";
+    my $username_exists = $dbh->selectrow_array($check_username_query, undef, $username);
+
+    if ($username_exists) {
+        print_json({"error" => "Username already exists"});
+        return;
+    }
+
+    # Create a salted hash of the password
+    my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
+    $salted_object->add($user_password);
+    my $hashed_password = $salted_object->generate;
+
+    # Insert user data into the database
+    my $insert_query = "INSERT INTO tbl_user_data (FIRST_NAME, SURNAME, EMAIL, USER_NAME, PASSWORD) VALUES (?, ?, ?, ?, ?)";
+    my $insert_sth = $dbh->prepare($insert_query);
+    $insert_sth->execute($firstname, $lastname, $email, $username, $hashed_password);
+
+    print_json({"success" => "User created successfully"});
+
+    $dbh->disconnect;  # Disconnect from the database
 }
+
+
+
 
 sub main_load{
     print "Content-Type: text/html\n\n";
