@@ -39,6 +39,7 @@ const errorMessageElement = getElement("errorMessage");
 const addButtonContainerElement = getElement("addButtonContainer");
 const formWrapperElement = getElement("formWrapper");
 const colorListContainerElement = getElement("colorListContainer");
+const signupFormElement = getElement("signupForm");
 
 const addButton = genereateElement("button", ["add_button--color"], "add");
 
@@ -204,6 +205,8 @@ async function getLastTenColors() {
   const ERROR = "Error:";
   const NETWORK_ERROR_MESSAGE = "Network error occurred while fetching data.";
   const INVALID_DATA_MESSAGE = "Invalid or missing color data in the response.";
+
+  signupFormElement.setAttribute("data-user-create", "true");
   try {
     const response = await fetch(API_URL);
 
@@ -244,6 +247,14 @@ function validCssColor(colorString) {
 function handleColorSubmit(event) {
   const formData = new FormData(event.target);
   const colorObject = Object.fromEntries(formData);
+
+  const isUserRegister =
+    signupFormElement.getAttribute("data-user-create") === "true";
+
+  if (isUserRegister) {
+    postColorData(colorObject, "create user");
+  }
+
   const color = colorObject.color;
 
   bodyElement.style.backgroundColor = color;
@@ -251,11 +262,11 @@ function handleColorSubmit(event) {
   console.log("Form data", formData);
   console.log("colorObject", colorObject);
   isValid
-    ? postColorData(colorObject)
+    ? postColorData(colorObject, "post color data")
     : (errorMessageElement.textContent = "Please Enter a Valid Colour.");
 }
 
-async function postColorData(formData) {
+async function postColorData(formData, actionValue) {
   const API_URL = "./script.cgi";
   const NETWORK_ERROR_MESSAGE = "Network error occurred while inserting data.";
   const ERROR_MESSAGE = "Error saving color.";
@@ -267,7 +278,7 @@ async function postColorData(formData) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ...formData, action: "post color data" }),
+      body: JSON.stringify({ ...formData, action: actionValue }),
     });
 
     if (response.ok) {
