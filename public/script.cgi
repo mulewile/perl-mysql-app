@@ -56,10 +56,10 @@ my $action = $request_body ->{action};
 
 
 
-if($action eq "post color data"){
-insert_color_data($dbh);
+if($action eq "create color data"){
+    &insert_color_data($dbh);
 } elsif($action eq "create user"){
-    generate_hashed_password();
+    &generate_hashed_password();
 }
     else{
     main_load();
@@ -166,6 +166,7 @@ sub generate_hashed_password {
     my $username = $request_body->{username_input};
     my $email = $request_body->{email_input};
     my $user_password = $request_body->{password_input};
+    my $is_user_created_value = "1";
 
 
 
@@ -188,7 +189,8 @@ sub generate_hashed_password {
     my $insert_sth = $dbh->prepare($insert_query);
     $insert_sth->execute($firstname, $lastname, $email, $username, $hashed_password);
 
-    print_json({"success" => "User created successfully"});
+    print_json({"success" => "User created successfully", "isUserCreated" => $is_user_created_value});
+
 
     $dbh->disconnect;  # Disconnect from the database
 }

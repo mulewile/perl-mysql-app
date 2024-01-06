@@ -27,6 +27,7 @@ function genereateElement(
 }
 
 const colorInput = getElement("color");
+const mainElement = getElement("main");
 const bodyElement = getElement("body");
 const formElement = getElement("form");
 const moodElement = getElement("mood");
@@ -207,6 +208,8 @@ async function getLastTenColors() {
   const INVALID_DATA_MESSAGE = "Invalid or missing color data in the response.";
 
   signupFormElement.setAttribute("data-user-create", "true");
+  formElement.setAttribute("data-color-create", "true");
+
   try {
     const response = await fetch(API_URL);
 
@@ -215,11 +218,11 @@ async function getLastTenColors() {
       return;
     }
 
-    const colorData = await response.json();
-
-    if (colorData) {
-      setLastTenTable(colorData);
-      setColorDetail(colorData);
+    const apiData = await response.json();
+    if (apiData) {
+      setLastTenTable(apiData);
+      setColorDetail(apiData);
+      //signupFormElement.classList.add("hidden");
     } else {
       console.log(ERROR, INVALID_DATA_MESSAGE);
     }
@@ -246,24 +249,25 @@ function validCssColor(colorString) {
 
 function handleColorSubmit(event) {
   const formData = new FormData(event.target);
-  const colorObject = Object.fromEntries(formData);
-
+  const formObject = Object.fromEntries(formData);
+  const isColorCreate =
+    formElement.getAttribute("data-color-create") === "true";
   const isUserRegister =
     signupFormElement.getAttribute("data-user-create") === "true";
 
   if (isUserRegister) {
-    postColorData(colorObject, "create user");
+    postColorData(formObject, "create user");
+  } else if (isColorCreate) {
+    const color = formObject.color;
+
+    bodyElement.style.backgroundColor = color;
+    const isValid = validCssColor(color);
+    console.log("Form data", formData);
+    console.log("colorObject", formObject);
+    isValid
+      ? postColorData(formObject, "create color data")
+      : (errorMessageElement.textContent = "Please Enter a Valid Colour.");
   }
-
-  const color = colorObject.color;
-
-  bodyElement.style.backgroundColor = color;
-  const isValid = validCssColor(color);
-  console.log("Form data", formData);
-  console.log("colorObject", colorObject);
-  isValid
-    ? postColorData(colorObject, "post color data")
-    : (errorMessageElement.textContent = "Please Enter a Valid Colour.");
 }
 
 async function postColorData(formData, actionValue) {
@@ -281,11 +285,15 @@ async function postColorData(formData, actionValue) {
       body: JSON.stringify({ ...formData, action: actionValue }),
     });
 
-    if (response.ok) {
+    const API_DATA = await response.json();
+    console.log("API Data", API_DATA);
+    if (response.ok && API_DATA.isUserCreated === "1") {
       getLastTenColors();
+
       console.info(SUCCESS_MESSAGE, { status: response.status });
       errorMessageElement.textContent = "";
-      formWrapperElement.classList.add("hidden");
+      mainElement.classList.remove("hidden");
+      signupFormElement.classList.add("hidden");
       colorListContainerElement.classList.remove("hidden");
     } else if (!response.ok) {
       console.info(ERROR_MESSAGE, { status: response.status });
@@ -337,12 +345,11 @@ document.addEventListener("input", (event) => {
 
 document.addEventListener("submit", (event) => {
   const isFormSubmit = event.target.matches(".form");
+  const isUserCreateSubmit = event.target.matches(".form--Register");
 
   if (isFormSubmit) {
     event.preventDefault();
-
     const colorInput = event.target.querySelector('[name="color"]');
-
     if (colorInput) {
       const inputValue = colorInput.value;
       const isValid = validCssColor(inputValue);
@@ -355,6 +362,9 @@ document.addEventListener("submit", (event) => {
 
       handleColorSubmit(event);
     }
+  } else if (isUserCreateSubmit) {
+    event.preventDefault();
+    handleColorSubmit(event);
   }
 });
 
