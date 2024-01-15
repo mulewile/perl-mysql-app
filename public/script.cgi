@@ -65,6 +65,26 @@ if($action eq "create color data"){
     main_load();
 }
 
+
+sub insert_user_data{
+
+my $first_name = $request_body->{firstname_input};
+my $surname = $request_body->{surname_input};
+my $user_name = $request_body->{username_input};
+my $email = $request_body->{email_input};
+
+
+my $user_data_insert_query = "
+  INSERT INTO user_data_table 
+  (FIRST_NAME, SURNAME, EMAIL, USER_NAME, SALTED_HASH_OBJECT) 
+  values
+  (?,?,?,?,?)
+";
+
+my $user_data_insert_statement = $dbh->prepare($user_data_insert_query);
+   $user_data_insert_statement->execute($first_name,$surname, $user_name, $email )
+}
+
 sub insert_color_data {
 # Get form data
 my $color_name = $request_body ->{color};
@@ -79,7 +99,7 @@ my $color_memories = $request_body ->{colorMemories};
         die "Error: Please provide a color name\n";
     }
 
-    my $insert_query = "INSERT INTO backgroundcolor (COLOR_NAME, COLOR_MEANING, COLOR_MEMORIES) VALUES (?, ?, ?)";
+    my $insert_query = "INSERT INTO color_table (COLOR_NAME, COLOR_MEANING, COLOR_MEMORIES) VALUES (?, ?, ?)";
     my $insert_stmt = $dbh->prepare($insert_query);
 
     if (not $insert_stmt) {
@@ -102,7 +122,7 @@ sub delete_color_data {
 
     if ($cgi->request_method() eq 'DELETE') {
         if ($color_id) {
-            my $delete_query = "DELETE FROM backgroundcolor WHERE id = ?";
+            my $delete_query = "DELETE FROM color_table WHERE id = ?";
             my $delete_stmt = $dbh->prepare($delete_query);
             $delete_stmt->execute($color_id) or die "Unable to execute SQL: $delete_stmt->errstr";
         }
@@ -122,8 +142,8 @@ sub get_last_ten_colors {
             COLOR_NAME, 
             COLOR_MEANING, 
             COLOR_MEMORIES,
-            (SELECT COUNT(main.COLOR_NAME) FROM backgroundcolor as main WHERE main.COLOR_NAME = tbls.COLOR_NAME) as color_count
-        FROM backgroundcolor as tbls
+            (SELECT COUNT(main.COLOR_NAME) FROM color_table as main WHERE main.COLOR_NAME = tbls.COLOR_NAME) as color_count
+        FROM color_table as tbls
         ORDER BY id DESC
         LIMIT 10
     );
