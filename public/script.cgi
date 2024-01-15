@@ -59,7 +59,8 @@ my $action = $request_body ->{action};
 if($action eq "create color data"){
     &insert_color_data($dbh);
 } elsif($action eq "create user"){
-    &generate_hashed_password();
+    insert_user_data();
+    
 }
     else{
     main_load();
@@ -73,6 +74,7 @@ my $surname = $request_body->{surname_input};
 my $user_name = $request_body->{username_input};
 my $email = $request_body->{email_input};
 
+my $salted_hashed_password_object = generate_hashed_password();
 
 my $user_data_insert_query = "
   INSERT INTO user_data_table 
@@ -181,17 +183,12 @@ use Crypt::SaltedHash;
 use DBI;
 
 sub generate_hashed_password {
-    my $firstname = $request_body->{firstname_input};
-    my $lastname = $request_body->{lastname_input};
-    my $username = $request_body->{username_input};
-    my $email = $request_body->{email_input};
+
     my $user_password = $request_body->{password_input};
     my $is_user_created_value = "1";
 
-
-
     # Check if the username already exists
-    my $check_username_query = "SELECT COUNT(*) FROM tbl_user_data WHERE USER_NAME = ?";
+    my $check_username_query = "SELECT USER_NAME FROM user_data_table WHERE USER_NAME = ?";
     my $username_exists = $dbh->selectrow_array($check_username_query, undef, $username);
 
     if ($username_exists) {
@@ -204,15 +201,10 @@ sub generate_hashed_password {
     $salted_object->add($user_password);
     my $hashed_password = $salted_object->generate;
 
-    # Insert user data into the database
-    my $insert_query = "INSERT INTO tbl_user_data (FIRST_NAME, SURNAME, EMAIL, USER_NAME, PASSWORD) VALUES (?, ?, ?, ?, ?)";
-    my $insert_sth = $dbh->prepare($insert_query);
-    $insert_sth->execute($firstname, $lastname, $email, $username, $hashed_password);
-
     print_json({"success" => "User created successfully", "isUserCreated" => $is_user_created_value});
 
 
-    $dbh->disconnect;  # Disconnect from the database
+    return $hashed_password;
 }
 
 
