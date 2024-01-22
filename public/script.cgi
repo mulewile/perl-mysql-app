@@ -61,31 +61,41 @@ if($action eq "create color data"){
 } elsif($action eq "create user"){
     insert_user_data();
     
+}elsif($action eq "sign in user"){
+validate_user_login()
 }
     else{
     main_load();
 }
 
 
-sub insert_user_data{
+sub validate_user_login{
 
-my $first_name = $request_body->{firstname_input};
-my $surname = $request_body->{surname_input};
-my $user_name = $request_body->{username_input};
-my $email = $request_body->{email_input};
 
-my $salted_hashed_password_object = generate_hashed_password();
-
-my $user_data_insert_query = "
-  INSERT INTO user_data_table 
-  (FIRST_NAME, SURNAME, EMAIL, USER_NAME, SALTED_HASH_OBJECT) 
-  values
-  (?,?,?,?,?)
-";
-
-my $user_data_insert_statement = $dbh->prepare($user_data_insert_query);
-   $user_data_insert_statement->execute($first_name,$surname, $user_name, $email )
 }
+
+
+sub insert_user_data {
+    my $first_name = $request_body->{firstname_input};
+    my $surname    = $request_body->{lastname_input};
+    my $user_name  = $request_body->{username_input};
+    my $email      = $request_body->{email_input};
+
+    my $salted_hashed_password_object = generate_hashed_password();
+
+    my $user_data_insert_query = "
+        INSERT INTO user_data_table 
+        (FIRST_NAME, SURNAME, EMAIL, USER_NAME, SALTED_HASH_OBJECT) 
+        VALUES (?, ?, ?, ?, ?)
+    ";
+
+    my $user_data_insert_statement = $dbh->prepare($user_data_insert_query);
+
+    unless ($user_data_insert_statement->execute($first_name, $surname, $email, $user_name, $salted_hashed_password_object)) {
+        die "Error in SQL query: " . $user_data_insert_statement->errstr;
+    }
+}
+
 
 sub insert_color_data {
 # Get form data
@@ -177,10 +187,6 @@ sub get_last_ten_colors {
 }
 
 
-use strict;
-use warnings;
-use Crypt::SaltedHash;
-use DBI;
 
 sub generate_hashed_password {
 

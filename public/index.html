@@ -67,12 +67,45 @@
           required
         />
 
-        <button type="submit" id="submitButton" class="form__button">
+        <button type="submit" id="submitButton" class="form__button sign_up">
+          REGISTER
+        </button>
+        <button type="submit" id="submitButton" class="form__button sign_in">
+          SIGN IN
+        </button>
+      </form>
+    </div>
+    <div class="form--signIn" id="formSignIn" data-js="formSignIn">
+      <form id="signInForm" data-js="signInForm" class="form--Register">
+        <h3 class="form__title">SIGN IN</h3>
+        <label for="userNameInput" class="form__label"></label>
+        <input
+          type="text"
+          id="userNameInput"
+          class="form__input"
+          placeholder="User Name"
+          name="username_input"
+          required
+        />
+
+        <label for="passwordInput" class="form__label"></label>
+        <input
+          type="password"
+          id="passwordInput"
+          class="form__input"
+          placeholder="Password"
+          name="password_input"
+          required
+        />
+
+        <button type="submit" id="submitButton" class="form__button sign_in">
+          SIGN IN
+        </button>
+        <button type="submit" id="submitButton" class="form__button sign_up">
           REGISTER
         </button>
       </form>
     </div>
-
     <main class="mainWrapper hidden" data-js="main">
       <div class="errorMessage hidden" data-js="errorMessage"></div>
       <div class="message--success hidden" data-js="successMessage"></div>

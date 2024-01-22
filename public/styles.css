@@ -104,10 +104,21 @@ p {
   transition: background-color 0.3s;
 }
 
+.sign_up{
+  background-color: salmon;
+  color: rgb(240, 234, 234);
+}
+
+
+
 .form__button:hover {
   background-color: #1e5720;
 }
 
+.sign_up:hover {
+  background-color: rgb(240, 137, 126);
+  color: #fff;
+}
 
 .message--success{
   display: flex;
