@@ -1,0 +1,206 @@
+[33mcommit 8d32e67c98ce43acca348f67ff5773d56d29285e[m[33m ([m[1;36mHEAD -> [m[1;32mfeat_refactor[m[33m, [m[1;31morigin/feat_refactor[m[33m)[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sun Jan 21 22:44:04 2024 +0100
+
+    Added three function handlers
+
+[33mcommit 7b666933c95d6e83a7ec660657889dfb4d24515a[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sun Jan 21 22:27:35 2024 +0100
+
+    Added three function handlers
+
+[33mcommit 52a8204897d041260b410a308bb3156a7216a722[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Mon Jan 15 23:37:49 2024 +0100
+
+    added user data insert statement
+
+[33mcommit 5cb1737ac8800ff661b33ade9d03bc8ac493b5b3[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Mon Jan 15 23:30:38 2024 +0100
+
+    added user data insert statement
+
+[33mcommit 4c3062f1544e38395bab4310ac2478119ebfe3b1[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sat Jan 6 16:06:58 2024 +0100
+
+    wrote function to store user data into database
+
+[33mcommit 660486b7dc4219826edec41c823cb0a50825d99e[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Fri Jan 5 23:18:43 2024 +0100
+
+    wrote function to store user data into database
+
+[33mcommit 2e23aedc29b932857bc7bc8e15b698891588d363[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Jan 4 21:23:26 2024 +0100
+
+    wrote function to generate hashed password in Backend
+
+[33mcommit 6a3e13b6162ca589b81b20685dde279afb400f95[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Wed Jan 3 22:21:33 2024 +0100
+
+    styled login/signup form
+
+[33mcommit f79c1ec7c0925c21e63c70f286b277a815647426[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Tue Jan 2 22:49:41 2024 +0100
+
+    created login/signup form
+
+[33mcommit 668576b9cc178030553226ac035f10f62899c623[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Mon Jan 1 17:26:57 2024 +0100
+
+    refactored backend handling of insert statements
+
+[33mcommit e1f43d652aa76b99e99785562f7cd8ba37193128[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Mon Jan 1 13:39:44 2024 +0100
+
+    refactored backend handling of insert statements
+
+[33mcommit 073a35fb169e354afc96b0583211b30e0c7fbbfe[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sun Dec 31 16:34:12 2023 +0100
+
+    refactored backend handling of insert statements
+
+[33mcommit ca7d7bdd77dce598cdfc88d91303677d3e0d4ac5[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sat Dec 30 14:04:44 2023 +0100
+
+    refactored backend handling of insert statements
+
+[33mcommit 257b56470569135b2592e31b513606fd9f99b8b4[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Dec 28 20:12:19 2023 +0100
+
+    refactored display of table and form
+
+[33mcommit 0784776f21d9b4e95526628c90f362efadc40dda[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Dec 28 16:21:12 2023 +0100
+
+    refactored display of table and form
+
+[33mcommit f689d6948eae09de2691325ab454fc33012ce52e[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Dec 28 12:08:26 2023 +0100
+
+    refactored get request in backend
+
+[33mcommit ff1729cdb6c01b84a77f2556d57a5242459d3788[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Nov 30 22:52:34 2023 +0100
+
+    feat(app code base refactor):Refactor codes to make them DRY
+    
+    - Refactored codes for mantainability
+
+[33mcommit 2ee711a9faa44f5db70dec171215ef71883d9142[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Wed Nov 29 22:01:40 2023 +0100
+
+    feat(app code base refactor):Refactor codes to make them DRY
+    
+    - Refactored codes for mantainability
+
+[33mcommit 6a549b89587d0788de868861cc4e26dff3b42203[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Mon Nov 27 23:15:02 2023 +0100
+
+    feat(app colorTable and details):Refactor color-related functions for clarity and efficiency
+    
+    - Extracted common functionality into a dedicated function 'setColorDetail' to set color details on the page.
+    - Improved 'setLastTenTable' to clear existing rows properly and iterate over the last ten colors.
+    - Cleaned up redundant code and enhanced readability.
+
+[33mcommit a7d1baac27e539846a26ff7fee7c5dcae0af09e3[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sun Nov 26 17:57:22 2023 +0100
+
+    Added event listener to entire document and delegated event.
+
+[33mcommit 5d4b22bc08e07463b66847520147e2b2bacb870e[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Tue Oct 31 19:07:14 2023 +0100
+
+    Added select sub
+
+[33mcommit dc135958cd4921ae66658ceb7964e64fa1032bdb[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sun Oct 29 12:57:08 2023 +0100
+
+    Added functions to check if hex colors are valid, convert hex colors to valid css color names, capitalise first letter of colors on form submition
+
+[33mcommit 05d00556204efb7f4eabf6468cabdf19e4c8ac5c[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sat Oct 28 22:11:27 2023 +0200
+
+    refactored code for better reading and maintenance
+
+[33mcommit e723448b976b4576bb13842a35d050d24fd36cdf[m
+Merge: dfa991c 39e476b
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Oct 26 23:02:50 2023 +0200
+
+    Merge branch 'main' of github.com:mulewile/perl-mysql-app
+
+[33mcommit dfa991c7f3569638c6001f0fd187599424555df7[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Oct 26 22:28:05 2023 +0200
+
+    refactored code for better reading and maintenance
+
+[33mcommit 39e476b8d099c2fd5c9834d3585b53e275720ded[m
+Author: William <125578511+mulewile@users.noreply.github.com>
+Date:   Thu Oct 26 20:44:24 2023 +0200
+
+    Delete public/script.cgi
+
+[33mcommit 13286bfb16631496aa33fc6acabc5489639edcc2[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Tue Sep 26 12:48:18 2023 +0200
+
+    delete-request
+
+[33mcommit b258e8c7ca07ceadea0368bba03c0f4c64faa007[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Aug 17 11:51:51 2023 +0200
+
+    first commit
+
+[33mcommit 019569e9603b766713da3b8736d10c89c19e3374[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Aug 3 23:50:36 2023 +0200
+
+    more color fetching
+
+[33mcommit f9e2b1fc3e211c4fae5f1e7b7507bdc22fcc3bce[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Sun Jul 23 18:46:31 2023 +0200
+
+    refactoring
+
+[33mcommit 180b3dff0ef47ea00a10fa052734f6cd498fc236[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Fri Jul 21 18:15:42 2023 +0200
+
+    DRYING
+
+[33mcommit a9522e3772ca50873ad0c4f2c334ef89a5088959[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Thu Jul 20 21:42:56 2023 +0200
+
+    refactoring
+
+[33mcommit 4e39cde81ca44400113275aa442a02b5f2ed3663[m
+Author: mulewile <william.chanda@posteo.de>
+Date:   Tue Jun 13 23:42:11 2023 +0200
+
+    initial commit
