@@ -40,7 +40,8 @@ const errorMessageElement = getElement("errorMessage");
 const addButtonContainerElement = getElement("addButtonContainer");
 const formWrapperElement = getElement("formWrapper");
 const colorListContainerElement = getElement("colorListContainer");
-const signupFormElement = getElement("signupForm");
+const signUpFormElement = getElement("signupForm");
+const signInFormElement = getElement("signInForm");
 
 const addButton = genereateElement("button", ["add_button--color"], "add");
 
@@ -207,8 +208,8 @@ async function getLastTenColors() {
   const NETWORK_ERROR_MESSAGE = "Network error occurred while fetching data.";
   const INVALID_DATA_MESSAGE = "Invalid or missing color data in the response.";
 
-  signupFormElement.setAttribute("data-user-create", "true");
-  formElement.setAttribute("data-color-create", "true");
+  //signUpFormElement.setAttribute("data-user-create", "true");
+  //formElement.setAttribute("data-color-create", "true");
 
   try {
     const response = await fetch(API_URL);
@@ -222,7 +223,7 @@ async function getLastTenColors() {
     if (apiData) {
       setLastTenTable(apiData);
       setColorDetail(apiData);
-      //signupFormElement.classList.add("hidden");
+      //signUpFormElement.classList.add("hidden");
     } else {
       console.log(ERROR, INVALID_DATA_MESSAGE);
     }
@@ -253,10 +254,14 @@ function handleColorSubmit(event) {
   const isColorCreate =
     formElement.getAttribute("data-color-create") === "true";
   const isUserRegister =
-    signupFormElement.getAttribute("data-user-create") === "true";
+    signUpFormElement.getAttribute("data-user-create") === "true";
+  const isUserLogin =
+    signInFormElement.getAttribute("data-user-login") === "true";
 
   if (isUserRegister) {
     postColorData(formObject, "create user");
+  } else if (isUserLogin) {
+    postColorData(formObject, "sign in user");
   } else if (isColorCreate) {
     const color = formObject.color;
 
@@ -293,7 +298,7 @@ async function postColorData(formData, actionValue) {
       console.info(SUCCESS_MESSAGE, { status: response.status });
       errorMessageElement.textContent = "";
       mainElement.classList.remove("hidden");
-      signupFormElement.classList.add("hidden");
+      signUpFormElement.classList.add("hidden");
       colorListContainerElement.classList.remove("hidden");
     } else if (!response.ok) {
       console.info(ERROR_MESSAGE, { status: response.status });
@@ -325,12 +330,13 @@ function capitaliseFirstLetter(inputString) {
 }
 
 document.addEventListener("input", (event) => {
+  const EVENT_TARGET = event.target;
   if (
-    event.target.tagName.toLowerCase() === "input" &&
-    event.target.type === "text" &&
-    event.target.name === "color"
+    EVENT_TARGET.tagName.toLowerCase() === "input" &&
+    EVENT_TARGET.type === "text" &&
+    EVENT_TARGET.name === "color"
   ) {
-    const colorInput = event.target;
+    const colorInput = EVENT_TARGET;
     const inputValue = colorInput.value;
     if (inputValue === "") {
       console.error("Invalid color");
@@ -340,16 +346,24 @@ document.addEventListener("input", (event) => {
       colorInput.value = firstLetterCapitalised;
       handleColorChange();
     }
+  } else if (
+    EVENT_TARGET.matches(".login_username_input") ||
+    EVENT_TARGET.matches(".login_password_input")
+  ) {
+    signInFormElement.setAttribute("data-user-login", "true");
   }
 });
 
 document.addEventListener("submit", (event) => {
-  const isFormSubmit = event.target.matches(".form");
-  const isUserCreateSubmit = event.target.matches(".form--Register");
+  const EVENT_TARGET = event.target;
+
+  const isFormSubmit = EVENT_TARGET.matches(".form");
+  const isUserCreateSubmit = EVENT_TARGET.matches(".form--Register");
+  const isUserLoginSubmit = EVENT_TARGET.matches(".form--Signin");
 
   if (isFormSubmit) {
     event.preventDefault();
-    const colorInput = event.target.querySelector('[name="color"]');
+    const colorInput = EVENT_TARGET.querySelector('[name="color"]');
     if (colorInput) {
       const inputValue = colorInput.value;
       const isValid = validCssColor(inputValue);
@@ -363,6 +377,9 @@ document.addEventListener("submit", (event) => {
       handleColorSubmit(event);
     }
   } else if (isUserCreateSubmit) {
+    event.preventDefault();
+    handleColorSubmit(event);
+  } else if (isUserLoginSubmit) {
     event.preventDefault();
     handleColorSubmit(event);
   }

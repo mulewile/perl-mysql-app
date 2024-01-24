@@ -63,6 +63,7 @@ if($action eq "create color data"){
     
 }elsif($action eq "sign in user"){
 validate_user_login()
+
 }
     else{
     main_load();
@@ -70,10 +71,52 @@ validate_user_login()
 
 
 sub validate_user_login{
+    my $user_name = $request_body->{username_input};
+    my $password  = $request_body->{password_input}; 
 
+    my $user_data_select_query = "
+        SELECT  
+        USER_NAME, SALTED_HASH_OBJECT
+        FROM user_data_table
+        WHERE USER_NAME = ?
+    ";
+
+    my $user_data_select_statement = $dbh->prepare($user_data_select_query);
+
+    unless ($user_data_select_statement->execute($user_name)) {
+        die "Error in SQL query: " . $user_data_select_statement->errstr;
+    }
+
+ 
+    my ($db_user_name, $db_salted_hash_object) = $user_data_select_statement->fetchrow_array();
+
+    if($user_name eq $db_user_name){
+  print_json({"success" => "The username $db_user_name exists"});
+  validate_password($password, $db_salted_hash_object);
+    }else{
+          print_json({"error" => "The username $user_name does not exist"});
+    }
+   
 
 }
 
+sub validate_password {
+    my ($input_password, $db_salted_hash_object) = @_;
+   
+
+        my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
+  
+    my $hashed_password = $salted_object->generate;
+
+
+    # Validate the entered password against the stored salted hash
+    if ($salted_object->validate($hashed_password, $input_password)) {
+        print_json({"success" => "Login successful"});
+    } else {
+        print_json({"error" => "Invalid $input_password password"});
+    }
+
+}
 
 sub insert_user_data {
     my $first_name = $request_body->{firstname_input};
@@ -91,8 +134,10 @@ sub insert_user_data {
 
     my $user_data_insert_statement = $dbh->prepare($user_data_insert_query);
 
-    unless ($user_data_insert_statement->execute($first_name, $surname, $email, $user_name, $salted_hashed_password_object)) {
-        die "Error in SQL query: " . $user_data_insert_statement->errstr;
+    if ($user_data_insert_statement->execute($first_name, $surname, $email, $user_name, $salted_hashed_password_object)) {
+        print_json({"success" => "User data inserted successfully"});
+    } else {
+        print_json({"error" => "Error in SQL query: " . $user_data_insert_statement->errstr});
     }
 }
 

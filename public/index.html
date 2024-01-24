@@ -15,7 +15,7 @@
     <header>
       <h1>MY COLOR MOOD DATABANK</h1>
     </header>
-    <div class="form--signUp" id="formSignUp" data-js="formSignUp">
+    <div class="form--signUp hidden" id="formSignUp" data-js="formSignUp">
       <form id="signupForm" data-js="signupForm" class="form--Register">
         <h3 class="form__title">SIGN UP</h3>
 
@@ -76,13 +76,13 @@
       </form>
     </div>
     <div class="form--signIn" id="formSignIn" data-js="formSignIn">
-      <form id="signInForm" data-js="signInForm" class="form--Register">
+      <form id="signInForm" data-js="signInForm" class="form--Signin">
         <h3 class="form__title">SIGN IN</h3>
         <label for="userNameInput" class="form__label"></label>
         <input
           type="text"
           id="userNameInput"
-          class="form__input"
+          class="form__input login_username_input"
           placeholder="User Name"
           name="username_input"
           required
@@ -92,7 +92,7 @@
         <input
           type="password"
           id="passwordInput"
-          class="form__input"
+          class="form__input login_password_input"
           placeholder="Password"
           name="password_input"
           required
