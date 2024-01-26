@@ -53,20 +53,24 @@ $request_body = decode_json($request)
 };
 
 my $action = $request_body ->{action};
+my $is_password_valid; #Global variable 
+my @json_data; # Global array to store JSON data
 
-
+if($action eq "sign in user"){
+validate_user_login();
+if($is_password_valid){
 
 if($action eq "create color data"){
     &insert_color_data($dbh);
 } elsif($action eq "create user"){
     insert_user_data();
-    
-}elsif($action eq "sign in user"){
-validate_user_login()
-
 }
     else{
     main_load();
+}
+}
+}else{
+    print_json({"error"=>"Please Login"})
 }
 
 
@@ -108,12 +112,13 @@ sub validate_password {
    my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
 
     # Validate the entered password against the stored salted hash
-    if ($salted_object->validate( $db_salted_hash_object, $input_password)) {
-        print_json({"success" => "Login successful"});
+    $is_password_valid = $salted_object->validate( $db_salted_hash_object, $input_password);
+    if ($is_password_valid) {
+        print_json({"success" => "Login successful" , "isLogin" => $is_password_valid});
     } else {
-        print_json({"error" => "Invalid $input_password password"});
-    }
-
+        print_json({"error" => "Invalid login details",  "isLogin" => $is_password_valid});
+    } 
+return $is_password_valid;
 }
 
 sub insert_user_data {
@@ -223,10 +228,10 @@ sub get_last_ten_colors {
 
     $select_stmt->finish(); 
 
-    my %color_data = ("color_object" => \@last_ten_colors);
-    my $json = encode_json \%color_data;
+# my %color_data = ("color_object" => \@last_ten_colors); 
+#my $json = encode_json \%color_data;
+  print_json ({"color_object" => \@last_ten_colors});
 
-    return $json;
 }
 
 
@@ -260,11 +265,11 @@ sub generate_hashed_password {
 
 
 sub main_load{
-    print "Content-Type: text/html\n\n";
+    #print "Content-Type: text/html\n\n";
 my $json_data = get_last_ten_colors($dbh);
 
 # Output background color
-print "$json_data\n";
+#print "$json_data\n";
 
 }
 
@@ -282,11 +287,17 @@ sub debug_output {
     exit;
 }
 
-sub print_json{
+
+
+sub print_json {
     my $json = shift;
-
-    my $output = to_json($json);
-
-    print $cgi->header("application/json");
-    print($output); 
+    push @json_data, $json; # Store JSON data in the global array
 }
+
+sub print_to_json {
+    my $output = to_json(\@json_data);
+    print $cgi->header("application/json");
+    print $output;
+}
+
+print_to_json();

@@ -1,3 +1,5 @@
+import manipulateElementClass from "./handlers/manipulatElementClass";
+
 function getElement(selector) {
   return document.querySelector(`[data-js="${selector}"]`);
 }
@@ -288,15 +290,22 @@ async function postColorData(formData, actionValue) {
     });
 
     const API_DATA = await response.json();
-    console.log("API Data", API_DATA);
+    console.log("API Data", API_DATA[1]);
     if (response.ok && API_DATA.isUserCreated === "1") {
       getLastTenColors();
 
       console.info(SUCCESS_MESSAGE, { status: response.status });
       errorMessageElement.textContent = "";
-      mainElement.classList.remove("hidden");
-      signUpFormElement.classList.add("hidden");
-      colorListContainerElement.classList.remove("hidden");
+
+      manipulateElementClass(mainElement, "hidden", "remove");
+      manipulateElementClass(signUpFormElement, "hidden", "add");
+      manipulateElementClass(colorListContainerElement, "hidden", "remove");
+    } else if (response.ok && API_DATA[0].isLogin === "1") {
+      setLastTenTable(API_DATA[1]);
+      setColorDetail(API_DATA[1]);
+
+      manipulateElementClass(mainElement, "hidden", "remove");
+      manipulateElementClass(signInFormElement, "hidden", "add");
     } else if (!response.ok) {
       console.info(ERROR_MESSAGE, { status: response.status });
       errorMessageElement.textContent = ERROR_MESSAGE;
