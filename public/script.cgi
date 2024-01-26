@@ -91,10 +91,11 @@ sub validate_user_login{
     my ($db_user_name, $db_salted_hash_object) = $user_data_select_statement->fetchrow_array();
 
     if($user_name eq $db_user_name){
-  print_json({"success" => "The username $db_user_name exists"});
+
   validate_password($password, $db_salted_hash_object);
     }else{
           print_json({"error" => "The username $user_name does not exist"});
+          return
     }
    
 
@@ -104,13 +105,10 @@ sub validate_password {
     my ($input_password, $db_salted_hash_object) = @_;
    
 
-        my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
-  
-    my $hashed_password = $salted_object->generate;
-
+   my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
 
     # Validate the entered password against the stored salted hash
-    if ($salted_object->validate($hashed_password, $input_password)) {
+    if ($salted_object->validate( $db_salted_hash_object, $input_password)) {
         print_json({"success" => "Login successful"});
     } else {
         print_json({"error" => "Invalid $input_password password"});
