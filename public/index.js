@@ -208,9 +208,6 @@ async function getLastTenColors() {
   const NETWORK_ERROR_MESSAGE = "Network error occurred while fetching data.";
   const INVALID_DATA_MESSAGE = "Invalid or missing color data in the response.";
 
-  //signUpFormElement.setAttribute("data-user-create", "true");
-  //formElement.setAttribute("data-color-create", "true");
-
   try {
     const response = await fetch(API_URL);
 
@@ -351,6 +348,10 @@ document.addEventListener("input", (event) => {
     EVENT_TARGET.matches(".login_password_input")
   ) {
     signInFormElement.setAttribute("data-user-login", "true");
+  } else if (EVENT_TARGET.matches(".form--Register")) {
+    signUpFormElement.setAttribute("data-user-create", "true");
+  } else if (EVENT_TARGET.matches(".form")) {
+    formElement.setAttribute("data-color-create", "true");
   }
 });
 
