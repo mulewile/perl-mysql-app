@@ -1,4 +1,4 @@
-import manipulateElementClass from "./handlers/manipulatElementClass";
+import manipulateElementClass from "./handlers/manipulatElementClass/index.js";
 
 function getElement(selector) {
   return document.querySelector(`[data-js="${selector}"]`);

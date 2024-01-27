@@ -3,10 +3,13 @@
 use strict;
 use warnings;
 use JSON;
-use CGI;
+use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 use DBI;
 use Crypt::SaltedHash;
+use CGI::Cookie;
+use CGI::Session;
+
 
 
 
@@ -77,7 +80,7 @@ if($action eq "create color data"){
 sub validate_user_login{
     my $user_name = $request_body->{username_input};
     my $password  = $request_body->{password_input}; 
-
+  
     my $user_data_select_query = "
         SELECT  
         USER_NAME, SALTED_HASH_OBJECT
@@ -96,7 +99,7 @@ sub validate_user_login{
 
     if($user_name eq $db_user_name){
 
-  validate_password($password, $db_salted_hash_object);
+  validate_password($password, $db_salted_hash_object, $db_user_name);
     }else{
           print_json({"error" => "The username $user_name does not exist"});
           return
@@ -106,7 +109,7 @@ sub validate_user_login{
 }
 
 sub validate_password {
-    my ($input_password, $db_salted_hash_object) = @_;
+    my ($input_password, $db_salted_hash_object, $logged_user_name) = @_;
    
 
    my $salted_object = Crypt::SaltedHash->new(algorithm => 'SHA-1');
@@ -114,7 +117,9 @@ sub validate_password {
     # Validate the entered password against the stored salted hash
     $is_password_valid = $salted_object->validate( $db_salted_hash_object, $input_password);
     if ($is_password_valid) {
-        print_json({"success" => "Login successful" , "isLogin" => $is_password_valid});
+       my $session_cookie = generate_cookie();
+       set_cookie($session_cookie);
+       print_json({"success" => "Login $session_cookie successful" , "isLogin" => $is_password_valid});
     } else {
         print_json({"error" => "Invalid login details",  "isLogin" => $is_password_valid});
     } 
@@ -262,7 +267,35 @@ sub generate_hashed_password {
 }
 
 
+sub generate_cookie {
+    
 
+    # Create a new CGI::Session object
+    my $session = CGI::Session->new( 'driver:File', undef, { Directory => '/tmp' } ) or die CGI::Session->errstr;
+
+    # Get the session ID
+    my $session_id = $session->id();
+
+    # Create the cookie using the session ID as the name
+    my $session_cookie = $cgi->cookie(
+         -name     => 'CGISESSID',
+        -value    => $session_id,
+        -expires  => '+3M',
+        -secure   => 1,
+        -samesite => 'Lax',
+        -priority => 'High',
+        -httponly => 1,
+    );
+
+    return $session_cookie;
+}
+
+
+sub set_cookie{
+    print "Content-Type: text/html\n\n";
+my $session_cookie = shift;
+print header(-cookie=>$session_cookie);
+}
 
 sub main_load{
     #print "Content-Type: text/html\n\n";
