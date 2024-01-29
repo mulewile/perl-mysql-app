@@ -9,6 +9,7 @@ use DBI;
 use Crypt::SaltedHash;
 use CGI::Cookie;
 use CGI::Session;
+use CGI::Session ( '-ip_match' );
 
 
 
@@ -57,11 +58,13 @@ $request_body = decode_json($request)
 
 my $action = $request_body ->{action};
 my $is_password_valid; #Global variable 
+my $session; #Globle session object
+my $session_cookie; #Globle session cookie
 my @json_data; # Global array to store JSON data
 
-if($action eq "sign in user"){
-validate_user_login();
-if($is_password_valid){
+validate_user_session();
+
+if ($session){
 
 if($action eq "create color data"){
     &insert_color_data($dbh);
@@ -71,10 +74,14 @@ if($action eq "create color data"){
     else{
     main_load();
 }
-}
+    
+} elsif($action eq "sign in user"){
+validate_user_login();
+
 }else{
-    print_json({"error"=>"Please Login"})
+    print_json({"error" => "Please Login"});
 }
+   
 
 
 sub validate_user_login{
@@ -118,7 +125,8 @@ sub validate_password {
     $is_password_valid = $salted_object->validate( $db_salted_hash_object, $input_password);
     if ($is_password_valid) {
        my $session_cookie = generate_cookie();
-       set_cookie($session_cookie);
+       my $session_id = $session_cookie->value();
+       set_cookie($session_id, $logged_user_name);
        print_json({"success" => "Login $session_cookie successful" , "isLogin" => $is_password_valid});
     } else {
         print_json({"error" => "Invalid login details",  "isLogin" => $is_password_valid});
@@ -235,8 +243,12 @@ sub get_last_ten_colors {
 
 # my %color_data = ("color_object" => \@last_ten_colors); 
 #my $json = encode_json \%color_data;
-  print_json ({"color_object" => \@last_ten_colors});
-
+  print_json ({"color_object" => \@last_ten_colors,
+                "isLogin" => 1,
+                "sessionID" => $session->id(),
+                "sessionExpiry" => $session->expires(),
+                "sessionData" => $session->dataref(),
+                });
 }
 
 
@@ -269,16 +281,16 @@ sub generate_hashed_password {
 
 sub generate_cookie {
     
-
+    
     # Create a new CGI::Session object
-    my $session = CGI::Session->new( 'driver:File', undef, { Directory => '/tmp' } ) or die CGI::Session->errstr;
+    $session = CGI::Session->new( 'driver:File', undef, { Directory => '/tmp' } ) or die CGI::Session->errstr;
 
     # Get the session ID
     my $session_id = $session->id();
 
     # Create the cookie using the session ID as the name
-    my $session_cookie = $cgi->cookie(
-         -name     => 'CGISESSID',
+    $session_cookie = $cgi->cookie(
+        -name     => 'CGISESSID',
         -value    => $session_id,
         -expires  => '+3M',
         -secure   => 1,
@@ -290,12 +302,51 @@ sub generate_cookie {
     return $session_cookie;
 }
 
+# This subroutine will set the session cookie id in the database. 
+#First it will get the user id from the database and then it will update the session cookie id in the table user_data_table
+#Parameters: session id and user name
+#Return: none
+#Side effects: none
 
 sub set_cookie{
-    print "Content-Type: text/html\n\n";
-my $session_cookie = shift;
-print header(-cookie=>$session_cookie);
+my $session_id = shift;
+my $user_name =shift;
+
+my $logged_user_query = "
+        SELECT  
+        ID
+        FROM user_data_table
+        WHERE USER_NAME = ?
+    ";
+my $logged_user_statement = $dbh->prepare($logged_user_query);
+$logged_user_statement->execute($user_name);
+my $logged_user_id = $logged_user_statement->fetchrow_array();
+
+my $session_id_update_query = "
+        UPDATE user_data_table
+        SET SESSION_COOKIE = ?
+        WHERE ID = ?
+    ";
+my $session_update_id_statement = $dbh->prepare($session_id_update_query);
+$session_update_id_statement->execute($session_id, $logged_user_id);
+
+
 }
+
+sub validate_user_session{
+my $session_id = $cgi->cookie('CGISESSID');
+$session = CGI::Session->new( 'driver:File', $session_id, { Directory => '/tmp' } ) or die CGI::Session->errstr;
+
+if($session->is_expired){
+        $session->delete();
+        print_json({"isLogin" => 0, "error" => "Please Login"})
+    }
+    elsif($session->is_empty){
+        print_json({"isLogin" => 0, "error" => "Please Login"})
+    }
+return 1;
+}
+
 
 sub main_load{
     #print "Content-Type: text/html\n\n";
@@ -329,7 +380,7 @@ sub print_json {
 
 sub print_to_json {
     my $output = to_json(\@json_data);
-    print $cgi->header("application/json");
+    print $cgi->header(-type =>"application/json", -cookie => $session_cookie);
     print $output;
 }
 
