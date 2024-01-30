@@ -62,9 +62,9 @@ my $session; #Globle session object
 my $session_cookie; #Globle session cookie
 my @json_data; # Global array to store JSON data
 
-validate_user_session();
+my $is_session_valid = validate_user_session();
 
-if ($session){
+if ($is_session_valid eq 1){
 
 if($action eq "create color data"){
     &insert_color_data($dbh);
@@ -78,7 +78,7 @@ if($action eq "create color data"){
 } elsif($action eq "sign in user"){
 validate_user_login();
 
-}else{
+}elsif($is_session_valid eq "null"){
     print_json({"error" => "Please Login"});
 }
    
@@ -124,10 +124,8 @@ sub validate_password {
     # Validate the entered password against the stored salted hash
     $is_password_valid = $salted_object->validate( $db_salted_hash_object, $input_password);
     if ($is_password_valid) {
-       my $session_cookie = generate_cookie();
-       my $session_id = $session_cookie->value();
-       set_cookie($session_id, $logged_user_name);
-       print_json({"success" => "Login $session_cookie successful" , "isLogin" => $is_password_valid});
+     
+       print_json({"success" => "Login successful" , "isLogin" => $is_password_valid});
     } else {
         print_json({"error" => "Invalid login details",  "isLogin" => $is_password_valid});
     } 
@@ -247,7 +245,7 @@ sub get_last_ten_colors {
                 "isLogin" => 1,
                 "sessionID" => $session->id(),
                 "sessionExpiry" => $session->expires(),
-                "sessionData" => $session->dataref(),
+                "is_session_valid" => $is_session_valid,
                 });
 }
 
@@ -281,24 +279,39 @@ sub generate_hashed_password {
 
 sub generate_cookie {
     
-    
-    # Create a new CGI::Session object
-    $session = CGI::Session->new( 'driver:File', undef, { Directory => '/tmp' } ) or die CGI::Session->errstr;
-
-    # Get the session ID
-    my $session_id = $session->id();
-
-    # Create the cookie using the session ID as the name
+    my $session_id;
+    if($session){
+    $session_id = $session->id;
+    }
+  my $session_cookie;
+if($session and $action eq "log out user"){
     $session_cookie = $cgi->cookie(
         -name     => 'CGISESSID',
-        -value    => $session_id,
-        -expires  => '+3M',
+        -value    => "",
+        -expires  => '-1d',
         -secure   => 1,
         -samesite => 'Lax',
         -priority => 'High',
         -httponly => 1,
-    );
 
+       
+    );
+    }else{
+    $session = CGI::Session->new( 'driver:File', undef, { Directory => '/tmp' } ) or die CGI::Session->errstr;
+    $session_id = $session->id;
+    $session_cookie = $cgi->cookie(
+        -name     => 'CGISESSID',
+        -value    => $session_id,
+        -expires  => '+1d',
+        -secure   => 1,
+        -samesite => 'Lax',
+        -priority => 'High',
+        -httponly => 1,
+
+       
+    );
+    
+    }
     return $session_cookie;
 }
 
@@ -335,14 +348,24 @@ $session_update_id_statement->execute($session_id, $logged_user_id);
 
 sub validate_user_session{
 my $session_id = $cgi->cookie('CGISESSID');
-$session = CGI::Session->new( 'driver:File', $session_id, { Directory => '/tmp' } ) or die CGI::Session->errstr;
+if($session_id){
+    $session = CGI::Session->new( 'driver:File', $session_id, { Directory => '/tmp' } ) or die CGI::Session->errstr;
+}
+else{
+    return "null";
+}
+
 
 if($session->is_expired){
         $session->delete();
-        print_json({"isLogin" => 0, "error" => "Please Login"})
+        
+        $session->flush();
+        print_json({"isLogin" => 0, "error" => "Please Login"});
+        return 0;
     }
     elsif($session->is_empty){
-        print_json({"isLogin" => 0, "error" => "Please Login"})
+        print_json({"isLogin" => 0, "error" => "Please Login"});
+        return 0;
     }
 return 1;
 }
@@ -378,9 +401,16 @@ sub print_json {
     push @json_data, $json; # Store JSON data in the global array
 }
 
-sub print_to_json {
+sub print_to_json {#
+my $user_name = $request_body->{username_input};
     my $output = to_json(\@json_data);
-    print $cgi->header(-type =>"application/json", -cookie => $session_cookie);
+    my $cookie = generate_cookie();
+ 
+       my $session_id = $cookie->value();
+       set_cookie($session_id, $user_name);
+    print $cgi->header(-type =>"application/json", 
+                       -cookie => $cookie,
+                );
     print $output;
 }
 
