@@ -58,13 +58,16 @@ $request_body = decode_json($request)
 
 my $action = $request_body ->{action};
 my $is_password_valid; #Global variable 
-my $session; #Globle session object
+my $session         = undef;  #Globle session object
 my $session_cookie; #Globle session cookie
 my @json_data; # Global array to store JSON data
 
-my $is_session_valid = validate_user_session();
+validate_user_session();
+if($action eq "sign in user"){
+validate_user_login();
 
-if ($is_session_valid eq 1){
+}
+if ($session){
 
 if($action eq "create color data"){
     &insert_color_data($dbh);
@@ -75,11 +78,8 @@ if($action eq "create color data"){
     main_load();
 }
     
-} elsif($action eq "sign in user"){
-validate_user_login();
-
-}elsif($is_session_valid eq "null"){
-    print_json({"error" => "Please Login"});
+} else{
+    validate_password();
 }
    
 
@@ -124,7 +124,7 @@ sub validate_password {
     # Validate the entered password against the stored salted hash
     $is_password_valid = $salted_object->validate( $db_salted_hash_object, $input_password);
     if ($is_password_valid) {
-     
+      
        print_json({"success" => "Login successful" , "isLogin" => $is_password_valid});
     } else {
         print_json({"error" => "Invalid login details",  "isLogin" => $is_password_valid});
@@ -243,9 +243,6 @@ sub get_last_ten_colors {
 #my $json = encode_json \%color_data;
   print_json ({"color_object" => \@last_ten_colors,
                 "isLogin" => 1,
-                "sessionID" => $session->id(),
-                "sessionExpiry" => $session->expires(),
-                "is_session_valid" => $is_session_valid,
                 });
 }
 
@@ -302,7 +299,7 @@ if($session and $action eq "log out user"){
     $session_cookie = $cgi->cookie(
         -name     => 'CGISESSID',
         -value    => $session_id,
-        -expires  => '+1d',
+        -expires  => '+1m',
         -secure   => 1,
         -samesite => 'Lax',
         -priority => 'High',
@@ -346,16 +343,19 @@ $session_update_id_statement->execute($session_id, $logged_user_id);
 
 }
 
+sub get_session_from_cookie {
+    my $existing_session_id = $cgi->cookie('CGISESSID');
+    return $existing_session_id;
+}
+
+
 sub validate_user_session{
-my $session_id = $cgi->cookie('CGISESSID');
+
+
+
+my $session_id = get_session_from_cookie();
 if($session_id){
-    $session = CGI::Session->new( 'driver:File', $session_id, { Directory => '/tmp' } ) or die CGI::Session->errstr;
-}
-else{
-    return "null";
-}
-
-
+    $session = CGI::Session->load( 'driver:File', $session_id, { Directory => '/tmp' } ) or die CGI::Session->errstr;
 if($session->is_expired){
         $session->delete();
         
@@ -363,10 +363,9 @@ if($session->is_expired){
         print_json({"isLogin" => 0, "error" => "Please Login"});
         return 0;
     }
-    elsif($session->is_empty){
-        print_json({"isLogin" => 0, "error" => "Please Login"});
-        return 0;
-    }
+
+}
+
 return 1;
 }
 
