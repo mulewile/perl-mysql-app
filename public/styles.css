@@ -24,6 +24,8 @@ header {
 .body--background-color{
     background-color: seashell;
 }
+
+
 .mainWrapper{
   display: flex;
   flex-direction: row;
