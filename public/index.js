@@ -36,8 +36,6 @@ const moodElement = getElement("mood");
 const footerElement = getElement("footer");
 const meaningElement = getElement("meaning");
 const memoriesElement = getElement("memories");
-const colorListElement = getElement("colorList");
-const colorCountElement = getElement("colorCount");
 const errorMessageElement = getElement("errorMessage");
 const addButtonContainerElement = getElement("addButtonContainer");
 const formWrapperElement = getElement("formWrapper");
@@ -238,14 +236,27 @@ function handleOnPageLoad() {
   fetchColorData();
 }
 
+//This function is used to validate the color string. It takes the color string as a parameter.
+//It then checks if the color string is a string and if it is not empty.
+//It then converts the color string to lower case and checks if it is a valid CSS color string.
+//Warning: This function does not check if the color string is a valid hexadecimal color string.
 function validCssColor(colorString) {
-  const lowerCaseColorString = colorString.toLowerCase();
-  const string = new Option().style;
-  string.color = lowerCaseColorString;
-  const isValidString = string.color === lowerCaseColorString;
-  const isValidHexPattern = /^#[0-9A-F]{6}$/i.test(colorString);
-  return isValidString || isValidHexPattern;
+  if (colorString !== "string") {
+    console.error("Invalid color string");
+  } else if (colorString === "") {
+    console.error("Invalid color string");
+  } else {
+    const lowerCaseColorString = colorString.toLowerCase();
+    const string = new Option().style;
+
+    const isValidString = string.color === lowerCaseColorString;
+    const isValidHexPattern = /^#[0-9A-F]{6}$/i.test(colorString);
+    return isValidString || isValidHexPattern;
+  }
 }
+
+//This function is used to handle the form submit event. It takes the event as a parameter.
+//It then gets the form data and converts it to an object
 
 function handleColorSubmit(event) {
   const formData = new FormData(event.target);
@@ -273,7 +284,10 @@ function handleColorSubmit(event) {
       : (errorMessageElement.textContent = "Please Enter a Valid Colour.");
   }
 }
-
+//This function is used to post the data to the server. It takes the form data and the action value as parameters.
+//The action value is used to determine which action to take on the server side.
+//The action value is passed to the server as a JSON object.
+//The server then uses the action value to determine which action to take.
 async function postColorData(formData, actionValue) {
   const API_URL = "./script.cgi";
   const NETWORK_ERROR_MESSAGE = "Network error occurred while inserting data.";
@@ -335,6 +349,8 @@ function capitaliseFirstLetter(inputString) {
   }
 }
 
+//This function is used to handle the input event. It uses event delegation to determine which input element was changed.
+
 document.addEventListener("input", (event) => {
   const EVENT_TARGET = event.target;
   if (
@@ -364,6 +380,7 @@ document.addEventListener("input", (event) => {
   }
 });
 
+//This function is used to handle the submit event. It uses event delegation to determine which form was submitted.
 document.addEventListener("submit", (event) => {
   const EVENT_TARGET = event.target;
 
@@ -395,6 +412,7 @@ document.addEventListener("submit", (event) => {
   }
 });
 
+//This is the DOMContentLoaded event handler. It is used to determine if the DOM has finished loading.
 function DOMLoadStatus(status) {
   console.info(status);
 }
@@ -408,6 +426,7 @@ if (document.readyState === "loading") {
   handleOnPageLoad();
 }
 
+//This function is used to handle the click event. It uses event delegation to determine which element was clicked.
 document.addEventListener("click", (event) => {
   console.log(event.target);
   if (event.target.matches(".add_button--color")) {
